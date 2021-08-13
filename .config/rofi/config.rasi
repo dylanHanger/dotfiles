@@ -1,0 +1,26 @@
+configuration {
+    theme: "./gruvbox-dark-soft";
+
+    width: 500;
+    lines: 5;
+    font: "JetbrainsMono Nerd Fonts Mono 15";
+
+    monitor: -4;
+
+    show-icons: true;
+    /* auto-select: false; */
+
+    modi: "window,run,drun";
+    display-run: " ";
+    display-drun: "  ";
+    display-window: "  ";
+
+    drun-display-format: "{icon} {name}";
+
+    me-select-entry: "";
+    me-accept-entry: "MousePrimary";
+}
+
+element-icon {
+    size: 3ch;
+}
