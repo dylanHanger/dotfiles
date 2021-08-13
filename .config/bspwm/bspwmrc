@@ -1,0 +1,55 @@
+#! /bin/sh
+
+# Start sxhkd if it is not already open
+pgrep -x sxhkd > /dev/null || PATH=$HOME/.local/bin:$PATH sxhkd &
+
+# Configure my monitors properly
+xrandr --output HDMI-0 --auto --primary --pos 0x0
+xrandr --output DP-0 --auto --pos 1920x230
+
+# and set bspwm desktops on each monitor
+bspc monitor HDMI-0 -d 1 2 3 4 5
+bspc monitor DP-0   -d 6 7 9 9 0
+
+bspc config border_width         2
+bspc config window_gap          12
+
+bspc config split_ratio          0.5
+bspc config borderless_monocle   true
+bspc config gapless_monocle      true
+bspc config single_monocle       true
+
+# window rules
+bspc rule -a rofi border=off
+
+# replace caps with escape
+setxkbmap -option caps:escape
+# setxkbmap -option menu:caps
+
+"$XDG_CONFIG_HOME"/polybar/launch.sh
+~/.fehbg &
+picom -b
+playerctld daemon
+# dunst &
+deadd-notification-center &
+alttab -w 1 -d 1 &
+
+bash /home/dylan/.config/bspwm/bspwm_colors.sh &
+
+# Disable rounded corners in monocle mode
+bspc subscribe desktop_layout | while read -r Event
+do
+  Desktop=$(echo "$Event" | awk '{print $3}')
+  State=$(echo "$Event" | awk '{print $4}')
+  if [ "$State" = "monocle" ]; then 
+    bspc query -N -d $Desktop | while read -r Node
+    do
+      xprop -id $Node -f _PICOM_ROUNDED 32c -set _PICOM_ROUNDED 1
+    done
+  elif [ $(bspc config window_gap) -gt 0 ]; then
+    bspc query -N -d $Desktop | while read -r Node
+    do
+      xprop -id $Node -remove _PICOM_ROUNDED
+    done
+  fi
+done &
