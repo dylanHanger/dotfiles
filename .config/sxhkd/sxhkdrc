@@ -23,7 +23,7 @@ XF86AudioMute
     volume {mute}
 
 XF86Audio{Prev,Play,Next}
-    playerctl {previous,play-pause,next}
+    playerctl --player=spotify,%any% {previous,play-pause,next}
 
 # notifications
 super + n
