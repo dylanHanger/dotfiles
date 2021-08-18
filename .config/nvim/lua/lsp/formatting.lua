@@ -1,5 +1,3 @@
-local utils = require "utils"
-
 local M = {}
 
 local format_disabled_var = function()
@@ -19,7 +17,11 @@ local format_options_prettier = {
 
 M.formatToggle = function(value)
     local var = format_disabled_var()
-    vim.g[var] = utils._if(value ~= nil, value, not vim.g[var])
+    if value ~= nil then
+        vim.g[var] = value
+    else
+        vim.g[var] = not vim.g[var]
+    end
 end
 vim.cmd [[command! FormatDisable lua require'lsp.formatting'.formatToggle(true)]]
 vim.cmd [[command! FormatEnable lua require'lsp.formatting'.formatToggle(false)]]

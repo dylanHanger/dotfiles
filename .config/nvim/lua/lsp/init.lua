@@ -1,8 +1,7 @@
 require "lsp.handlers"
 require "lsp.formatting"
 
-local utils = require "utils"
-
+local map = require "mappings.utils".map
 local M = {}
 
 vim.lsp.protocol.CompletionItemKind = {
@@ -65,7 +64,6 @@ vim.fn.sign_define("LspDiagnosticsSignInformation", {text = "", numhl = "LspDiag
 vim.fn.sign_define("LspDiagnosticsSignHint", {text = "", numhl = "LspDiagnosticsDefaultHint"})
 
 local on_attach = function (client)
-    -- TODO: Use lspsaga
     if client.resolved_capabilities.document_formatting then
         vim.cmd[[
         augroup Format
@@ -77,7 +75,7 @@ local on_attach = function (client)
         vim.cmd [[command! Format lua require 'lsp.formatting'.format()]]
     end
     if client.resolved_capabilities.goto_definition then
-        utils.map("n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", {buffer = true})
+        map("n", "gd", ":lua vim.lsp.buf.definition()<CR>", {buffer = true}, "Go to definition")
     end
     -- if client.resolved_capabilities.completion then
     --     -- require 'completion'.on_attach()
@@ -115,9 +113,9 @@ local config = {
                 },
                 diagnostics = {
                     globals = {
-                        -- neovim
+                        -- Neovim
                         "vim",
-                        -- packer
+                        -- Packer
                         "use"
                     }
                 },
@@ -144,9 +142,7 @@ M.setup = function()
 
         vim.schedule(function()
             local lsp = require "lspconfig"
-            lsp[server].setup(cfg)
-            -- require "packer".loader("coq_nvim coq.artifacts")
-            -- lsp[server].setup(require "coq"().lsp_ensure_capabilities(cfg))
+            pcall(lsp[server].setup, cfg)
             end)
     end
 end

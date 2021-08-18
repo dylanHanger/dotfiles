@@ -1,55 +1,106 @@
-M = {}
-M.register = require "which-key".register
+local register = require "mappings.utils".register
+local map      = require "mappings.utils".map
 
-local merge = function(t1, t2)
-    for k, v in pairs(t2) do
-        t1[k] = v
-    end
-    return t1
-end
+map("", "<Space>", "<Nop>", {silent = true})
+vim.g.mapleader = " "
+vim.g.localmapleader = " "
 
-M.default_options = {
-    noremap = true,
-    silent = false,
-    expr = false,
-    nowait = false
-}
 
-M.map = function(modes, key, result, options, description)
-    options = merge(
-        M.default_options,
-        options or {}
-    )
-    local buffer = options.buffer
-    options.buffer = nil
+----------------------------------------
+--              BUFFERS               --
+----------------------------------------
 
-    if type(modes) ~= "table" then
-        modes = {modes}
-    end
+-- File Explorer
+register({b = {":NvimTreeToggle<CR>", "Toggle file explorer"}}, {prefix = "<leader>"})
 
-    for i = 1, #modes do
-        if buffer then
-            vim.api.nvim_buf_set_keymap(0, modes[i], key, result, options)
-        else
-            vim.api.nvim_set_keymap(modes[i], key, result, options)
-        end
-    end
+-- Buffers
+register({
+    ["<leader>q"] = {
+        name = "+quit",
+        q = {":Bdelete!<CR>", "Quit a buffer"},
+        p = {":BufferLinePickClose<CR>", "Pick a buffer to quit"}
+    },
 
-    if description ~= nil then
-        M.register({
-            [key] = {result, description}
-        })
-    end
-end
+    ["gb"] = {":BufferLinePick<CR>", "Pick a buffer to go to"},
 
-M.setup = function()
-    M.map("", "<Space>", "<Nop>", {silent = true})
-    vim.g.mapleader = ' '
-    vim.g.maplocalleader = ' '
+    ["[b"] = {":BufferLineCyclePrev<CR>", "Previous buffer"},
+    ["]b"] = {":BufferLineCycleNext<CR>", "Next buffer"}
+})
 
-    require "mappings.buffers"
-    require "mappings.completion"
-    require "mappings.motions"
-end
 
-return M
+----------------------------------------
+--             COMPLETION             --
+----------------------------------------
+
+_G.tab_complete   = require "mappings.utils".tab_complete
+_G.s_tab_complete = require "mappings.utils".s_tab_complete
+
+map({"i", "s"}, "<Tab>", "v:lua.tab_complete()", {silent = false, expr = true})
+map({"i", "s"}, "<S-Tab>", "v:lua.s_tab_complete()", {silent = false, expr = true})
+
+map("i", "<C-Space>", "compe#complete()", {silent = true, expr = true})
+map("i", "<CR>", "compe#confirm(luaeval('require \"nvim-autopairs\".autopairs_cr()'))", {silent = true, expr = true})
+map("i", "<C-e>", "compe#close('<C-e>')", {silent = true, expr = true})
+map("i", "<C-f>", "compe#scroll({ 'delta': +4 })", {silent = true, expr = true})
+map("i", "<C-d>", "compe#scroll({ 'delta': -4 })", {silent = true, expr = true})
+
+
+----------------------------------------
+--             TELESCOPE              --
+----------------------------------------
+register({
+    ["<leader>"] = {
+        f = {
+            name = "+file",
+            f = { "<cmd>Telescope find_files<cr>", "Find File" },
+            r = { "<cmd>Telescope oldfiles<cr>", "Open Recent File" },
+        },
+    },
+})
+
+----------------------------------------
+--               FOCUS                --
+----------------------------------------
+register({
+    ["<leader>s"] = {
+        ":FocusSplitNicely<CR>",
+        "Split window nicely"
+    },
+    ["<A-l>"] = {
+        ":FocusSplitRight<CR>",
+        "Go to the right window"
+    },
+    ["<A-h>"] = {
+        ":FocusSplitLeft<CR>",
+        "Go to the left window"
+    },
+    ["<A-j>"] = {
+        ":FocusSplitDown<CR>",
+        "Go to the down window"
+    },
+    ["<A-k>"] = {
+        ":FocusSplitUp<CR>",
+        "Go to the up window"
+    },
+    ["<A-Right>"] = {
+        ":FocusSplitRight<CR>",
+        "Go to the right window"
+    },
+    ["<A-Left>"] = {
+        ":FocusSplitLeft<CR>",
+        "Go to the left window"
+    },
+    ["<A-Down>"] = {
+        ":FocusSplitDown<CR>",
+        "Go to the down window"
+    },
+    ["<A-Up>"] = {
+        ":FocusSplitUp<CR>",
+        "Go to the up window"
+    }
+})
+
+
+----------------------------------------
+--              TERMINAL              --
+----------------------------------------
