@@ -79,6 +79,9 @@ local on_attach = function (client)
     if client.resolved_capabilities.goto_definition then
         utils.map("n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", {buffer = true})
     end
+    -- if client.resolved_capabilities.completion then
+    --     -- require 'completion'.on_attach()
+    -- end
 end
 
 ----------  Python  ---------------
@@ -87,10 +90,10 @@ local isort  = require "efm/isort"
 local flake8 = require "efm/flake8"
 local mypy   = require "efm/mypy"
 
-----------  Lua  ------------------
+-----------  Lua  -----------------
 local luafmt = require "efm/luafmt"
-
 -----------------------------------
+
 local config = {
     efm = {
         init_options = {documentFormatting = true},
@@ -128,7 +131,8 @@ local config = {
         }
     }
 }
-local function setup_lsp()
+
+M.setup = function()
     local lspinstall = require "lspinstall"
     lspinstall.setup()
 
@@ -136,18 +140,19 @@ local function setup_lsp()
 
     for _, server in pairs(servers) do
         local cfg = config[server] or {}
-        if cfg.on_attach == nil then
-            cfg.on_attach = on_attach
-        end
+        cfg.on_attach = cfg.on_attach or on_attach
 
-        require "lspconfig"[server].setup(cfg)
+        vim.schedule(function()
+            local lsp = require "lspconfig"
+            lsp[server].setup(cfg)
+            -- require "packer".loader("coq_nvim coq.artifacts")
+            -- lsp[server].setup(require "coq"().lsp_ensure_capabilities(cfg))
+            end)
     end
 end
 
-setup_lsp()
-
 require 'lspinstall'.post_install_hook = function()
-    setup_lsp()
+    M.setup()
     vim.cmd [[bufdo e]]
 end
 

@@ -1,22 +1,22 @@
 local install_path = vim.fn.stdpath("data").."/site/pack/packer/start/packer.nvim"
-
 if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
     vim.fn.system({"git", "clone", "https://github.com/wbthomason/packer.nvim", install_path})
-    vim.api.nvim_command "packadd packer.nvim"
+    vim.api.nvim_command [[packadd packer.nvim]]
 end
 
--- vim.g.loaded_netrwPlugin = false
+vim.g.loaded_netrwPlugin = false
 vim.cmd [[packadd cfilter]]
+
 require("packer").startup(function()
     use "wbthomason/packer.nvim"
 
     -- Keymaps
-    -- use {
-    --     "folke/which-key.nvim",
-    --     config = function()
-    --         require "which-key".setup()
-    --     end
-    -- }
+    use {
+        "folke/which-key.nvim",
+        config = function()
+            require "which-key".setup()
+        end
+    }
 
     -- LSP
     use "neovim/nvim-lspconfig"
@@ -28,8 +28,7 @@ require("packer").startup(function()
                 enabled = true,
                 autocomplete = true,
                 min_length = 1,
-                preselect = "disable",
-                allow_prefix_umatch = false,
+                preselect = "enable",
                 source = {
                     path = true,
                     buffer = true,
@@ -38,6 +37,11 @@ require("packer").startup(function()
                     vsnip = true,
                     calc = true,
                     treesitter = true
+                },
+                documentation = {
+                    border = "single",
+                    winhighlight = "NormalFloat:LspFloatWinNormal,FloatBorder:LspFloatWinBorder",
+                    max_width = 120,
                 }
             }
         end
@@ -50,11 +54,12 @@ require("packer").startup(function()
             require "nvim-treesitter.configs".setup {
                 ensure_installed = "all",
                 highlight = {
-                    enabled = true,
-                    -- language_tree = true
+                    enable = true,
+                    language_tree = true
                 },
                 indent = {
-                    enable = true
+                    enable = true,
+                    disable = {"python"}
                 },
                 refactor = {
                     highlight_definitions = {
@@ -78,33 +83,38 @@ require("packer").startup(function()
                 rainbow = {
                     enable = true,
                     extended_mode = true
+                },
+                autotag = {
+                    enable = true
                 }
             }
         end
     }
+
+    use "nvim-treesitter/playground"
     use "nvim-treesitter/nvim-treesitter-refactor"
     use "nvim-treesitter/nvim-treesitter-textobjects"
-    use "p00f/nvim-ts-rainbow"
+    use "windwp/nvim-ts-autotag"
 
-    use {
-        'glepnir/lspsaga.nvim',
-        config = function()
-            require "lspsaga".init_lsp_saga {
-                code_action_prompt = {sign = false},
-                code_action_keys = {
-                    quit = {"q","<Esc>","<C-c>"},
-                    exec = "<CR>"
-                },
-                finder_action_keys = {
-                    quit = {"q","<Esc>","<C-c>"},
-                    open = {"<CR>", "o"}
-                },
-                rename_action_keys = {
-                    quit = {"q","<Esc>","<C-c>"}
-                }
-            }
-        end
-    }
+    -- use {
+    --     'glepnir/lspsaga.nvim',
+    --     config = function()
+    --         require "lspsaga".init_lsp_saga {
+    --             code_action_prompt = {sign = false},
+    --             code_action_keys = {
+    --                 quit = {"q","<Esc>","<C-c>"},
+    --                 exec = "<CR>"
+    --             },
+    --             finder_action_keys = {
+    --                 quit = {"q","<Esc>","<C-c>"},
+    --                 open = {"<CR>", "o"}
+    --             },
+    --             rename_action_keys = {
+    --                 quit = {"q","<Esc>","<C-c>"}
+    --             }
+    --         }
+    --     end
+    -- }
 
     use {
         'windwp/nvim-autopairs',
@@ -117,7 +127,7 @@ require("packer").startup(function()
             require('nvim-autopairs.completion.compe').setup {
                 map_cr = true,
                 map_complete = true,
-                auto_select = false
+                auto_select = true,
             }
         end
     }
@@ -187,7 +197,6 @@ require("packer").startup(function()
 
     use "tpope/vim-repeat"
     use "tpope/vim-surround"
-    use "tpope/vim-obsession"
     use "tpope/vim-sleuth"
 
     use {
@@ -207,19 +216,19 @@ require("packer").startup(function()
     }
 
     use {
-        -- File tree
         "kyazdani42/nvim-tree.lua",
         requires = {"kyazdani42/nvim-web-devicons"},
         config = function()
-            vim.g.nvim_tree_disable_netrw = 0
-            vim.g.nvim_tree_hijack_netrw = 0
             vim.g.nvim_tree_quit_on_open = 1
+            vim.g.nvim_tree_auto_open = 1
             vim.g.nvim_tree_auto_close = 1
+            vim.g.nvim_tree_update_cwd = 1
+            vim.g.nvim_tree_respect_buf_cwd = 1
         end
     }
+
     use "famiu/bufdelete.nvim"
     use {
-        -- Bufferline
         "akinsho/nvim-bufferline.lua",
         requires = {"kyazdani42/nvim-web-devicons"},
         config = function()
@@ -231,14 +240,19 @@ require("packer").startup(function()
                             filetype = "NvimTree",
                             text = "Explorer",
                             highlight = "Directory",
-                            text_align = "left"
-                        }, {filetype = "packer"}
+                            text_align = "center",
+                        },
+                        {
+                            filetype = "packer",
+                            text = "Packer",
+                            text_align = "center"
+                        }
                     },
-                    separator_style = "slant",
+                    separator_style = "thin",
                     always_show_bufferline = true,
-                    close_command = function(bufnr)
-                        require("bufdelete").bufdelete(bufnr, true)
-                    end,
+                    close_command = "Bdelete! %d",
+                    right_mouse_command = "Bdelete! %d",
+
                     -- sort_by = 'tabs'
                     sort_by = function(buffer_a, buffer_b)
                         -- TODO: My own sorting here
@@ -259,16 +273,27 @@ require("packer").startup(function()
     }
 
     use {
-        "rrethy/vim-hexokinase",
-        run = "make hexokinase",
-        config = function ()
-            vim.g.Hexokinase_optInPatterns = "full_hex,triple_hex,rgb,rgba,hsl,hsla"
-            vim.g.Hexokinase_highlighters = { "backgroundfull" }
-            vim.g.Hexokinase_refreshEvents = {"TextChanged", "TextChangedI", "BufRead"}
+        "norcalli/nvim-colorizer.lua",
+        config = function()
+            require "colorizer".setup {
+                "*",
+                css = {
+                    css = true
+                },
+                html = {
+                    css = true
+                }
+            }
         end
     }
 
-    use "bkad/camelcasemotion"
+    -- use "bkad/camelCaseMotion"
+    use {
+        "chaoren/vim-wordmotion",
+        config = function()
+            vim.g.wordmotion_nomap = 1
+        end
+    }
 
     use "vim-scripts/ReplaceWithRegister"
     use "vim-scripts/ReplaceWithSameIndentRegister"
@@ -300,4 +325,23 @@ require("packer").startup(function()
     use "hoob3rt/lualine.nvim"
 
     use "antoinemadec/FixCursorHold.nvim"
+
+    use "beauwilliams/focus.nvim"
+
+    use {
+        "nvim-telescope/telescope.nvim",
+        requires = {
+            "nvim-lua/plenary.nvim"
+        }
+    }
+    use {
+        "RishabhRD/nvim-lsputils",
+        requires = {
+            "RishabhRD/popfix"
+        }
+    }
+
+    use "monaqa/dial.nvim"
+
+    use "Pocco81/AutoSave.nvim"
 end)

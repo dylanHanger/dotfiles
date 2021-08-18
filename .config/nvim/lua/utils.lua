@@ -18,14 +18,14 @@ end
 M.map = function(modes, key, result, options)
     options =
         M.merge(
-        {
-            noremap = true,
-            silent = false,
-            expr = false,
-            nowait = false
-        },
-        options or {}
-    )
+            {
+                noremap = true,
+                silent = false,
+                expr = false,
+                nowait = false
+            },
+            options or {}
+        )
     local buffer = options.buffer
     options.buffer = nil
 

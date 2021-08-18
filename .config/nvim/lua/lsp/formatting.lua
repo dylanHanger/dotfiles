@@ -29,5 +29,6 @@ M.format = function()
         vim.lsp.buf.formatting(vim.g[format_options_var()] or {})
     end
 end
+vim.cmd [[command! Format lua require'lsp.formatting'.format()]]
 
 return M
