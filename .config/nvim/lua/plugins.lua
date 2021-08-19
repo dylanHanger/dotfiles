@@ -122,6 +122,7 @@ require("packer").startup(function()
             vim.g.nvim_tree_auto_close = 1
             vim.g.nvim_tree_auto_ignore_ft = {"dashboard", "packer"}
             vim.g.nvim_tree_auto_open = 1
+            vim.g.nvim_tree_git_hl = 1
             vim.g.nvim_tree_gitingore = 1
             vim.g.nvim_tree_hijack_cursor = 0
             vim.g.nvim_tree_lsp_diagnostics = 1
@@ -252,7 +253,8 @@ require("packer").startup(function()
                     enable = true
                 },
                 indent = {
-                    enable = true
+                    enable = true,
+                    disable = {"python"}
                 }
             }
 
