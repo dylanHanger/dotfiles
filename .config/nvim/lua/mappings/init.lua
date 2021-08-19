@@ -27,6 +27,46 @@ register({
     ["]b"] = {":BufferLineCycleNext<CR>", "Next buffer"}
 })
 
+----------------------------------------
+--              LSP SAGA              --
+----------------------------------------
+
+register({
+    ["<leader>"] = {
+        ["ca"] = {
+            require "lspsaga.codeaction".code_action,
+            "Code Actions"
+        },
+        r = {
+            require "lspsaga.rename".rename,
+            "Rename"
+        },
+        h = {
+            require "lspsaga.provider".lsp_finder,
+            "Finder"
+        }
+    },
+    ["[e"] = {
+        require "lspsaga.diagnostic".lsp_jump_diagnostic_next,
+        "Next diagnostic"
+    },
+    ["]e"] = {
+        require "lspsaga.diagnostic".lsp_jump_diagnostic_prev,
+        "Prev diagnostic"
+    },
+    ["<C-Space>"] = {
+        require "lspsaga.signaturehelp".signature_help,
+        "Signature help",
+        mode = "i",
+    }
+})
+
+register({
+    ["<leader>ca"] = {
+        require "lspsaga.codeaction".range_code_action,
+        "Code Actions"
+    }
+}, {mode = "v"})
 
 ----------------------------------------
 --             COMPLETION             --
@@ -35,15 +75,13 @@ register({
 _G.tab_complete   = require "mappings.utils".tab_complete
 _G.s_tab_complete = require "mappings.utils".s_tab_complete
 
-map({"i", "s"}, "<Tab>", "v:lua.tab_complete()", {silent = false, expr = true})
-map({"i", "s"}, "<S-Tab>", "v:lua.s_tab_complete()", {silent = false, expr = true})
+map({"i", "s"}, "<Tab>", "v:lua.tab_complete()", {silent = true, expr = true})
+map({"i", "s"}, "<S-Tab>", "v:lua.s_tab_complete()", {silent = true, expr = true})
 
-map("i", "<C-Space>", "compe#complete()", {silent = true, expr = true})
 map("i", "<CR>", "compe#confirm(luaeval('require \"nvim-autopairs\".autopairs_cr()'))", {silent = true, expr = true})
 map("i", "<C-e>", "compe#close('<C-e>')", {silent = true, expr = true})
 map("i", "<C-f>", "compe#scroll({ 'delta': +4 })", {silent = true, expr = true})
 map("i", "<C-d>", "compe#scroll({ 'delta': -4 })", {silent = true, expr = true})
-
 
 ----------------------------------------
 --             TELESCOPE              --

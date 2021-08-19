@@ -101,13 +101,14 @@ require("packer").startup(function()
                     close_command = "Bdelete! %d",
                     right_mouse_command = "Bdelete! %d",
 
-                    sort_by = function(buffer_a, buffer_b)
-                        -- TODO: My own proper logic
-                        local mod_a = vim.loop.fs_stat(buffer_a.path).mtime.sec
-                        local mod_b = vim.loop.fs_stat(buffer_b.path).mtime.sec
+                    -- TODO: This breaks when a buffer does not exist on disk
+                    -- sort_by = function(buffer_a, buffer_b)
+                    --     -- TODO: My own proper logic
+                    --     local mod_a = vim.loop.fs_stat(buffer_a.path).mtime.sec
+                    --     local mod_b = vim.loop.fs_stat(buffer_b.path).mtime.sec
 
-                        return mod_a > mod_b
-                    end
+                    --     return mod_a > mod_b
+                    -- end
                 }
             }
         end
@@ -218,6 +219,27 @@ require("packer").startup(function()
     -- Language Servers
     use "neovim/nvim-lspconfig"     -- Configurations for LSP servers
     use "kabouzeid/nvim-lspinstall" -- Automatic installation of LSP servers
+
+    -- LSP UI
+    use {
+        "glepnir/lspsaga.nvim",
+        config = function()
+            require "lspsaga".init_lsp_saga {
+                code_action_prompt = {sign = false},
+                code_action_keys = {
+                    quit = {"q","<Esc>","<C-c>"},
+                    exec = "<CR>"
+                },
+                finder_action_keys = {
+                    quit = {"q","<Esc>","<C-c>"},
+                    open = {"<CR>", "o"}
+                },
+                rename_action_keys = {
+                    quit = {"q","<Esc>","<C-c>"}
+                }
+            }
+        end
+    }
 
     -- Treesitter
     use {
