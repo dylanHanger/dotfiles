@@ -1,7 +1,13 @@
-require "settings"
-require "plugins"
-require "mappings"
+local modules = {
+	"settings",
+	"plugins",
+	"autocmds",
+	"lsp",
+	"mappings"
+}
 
-require "lsp".setup()
-
-require "autocmds"
+for i = 1, #modules do
+	if not pcall(require, modules[i]) then
+		require("utils").error("Failed to load", modules[i])
+	end
+end

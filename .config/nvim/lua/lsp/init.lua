@@ -1,109 +1,59 @@
-require "lsp.handlers"
-require "lsp.formatting"
+require("lsp.handlers")
 
-local map = require "mappings.utils".map
-local M = {}
+local lspinstall = require("lspinstall")
 
-vim.lsp.protocol.CompletionItemKind = {
-    " [text]",
-    " [method]",
-    " [function]",
-    " [constructor]",
-    "ﰠ [field]",
-    " [variable]",
-    " [class]",
-    " [interface]",
-    " [module]",
-    " [property]",
-    " [unit]",
-    " [value]",
-    " [enum]",
-    " [key]",
-    "﬌ [snippet]",
-    " [color]",
-    " [file]",
-    " [reference]",
-    " [folder]",
-    " [enum member]",
-    " [constant]",
-    " [struct]",
-    "⌘ [event]",
-    " [operator]",
-    " [type]"
-}
+local function lspSymbol(name, icon)
+    vim.fn.sign_define("LspDiagnosticsSign" .. name, { text = icon, numhl = "LspDiagnosticsDefault" .. name })
+end
 
-M.symbol_kind_icons = {
-    Function = "",
-    Method = "",
-    Variable = "",
-    Constant = "",
-    Interface = "",
-    Field = "ﰠ",
-    Property = "",
-    Struct = "",
-    Enum = "",
-    Class = ""
-}
+lspSymbol("Error", "")
+lspSymbol("Warning", "")
+lspSymbol("Information", "")
+lspSymbol("Hint", "")
 
-M.symbol_kind_colors = {
-    Function = "green",
-    Method = "green",
-    Variable = "blue",
-    Constant = "red",
-    Interface = "cyan",
-    Field = "blue",
-    Property = "blue",
-    Struct = "cyan",
-    Enum = "yellow",
-    Class = "red"
-}
+local map = require("utils").map
+local function on_attach(client, bufnr)
+    vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
 
-vim.fn.sign_define("LspDiagnosticsSignError", {text = "", numhl = "LspDiagnosticsDefaultError"})
-vim.fn.sign_define("LspDiagnosticsSignWarning", {text = "", numhl = "LspDiagnosticsDefaultWarning"})
-vim.fn.sign_define("LspDiagnosticsSignInformation", {text = "", numhl = "LspDiagnosticsDefaultInformation"})
-vim.fn.sign_define("LspDiagnosticsSignHint", {text = "", numhl = "LspDiagnosticsDefaultHint"})
-
-local on_attach = function (client)
     if client.resolved_capabilities.document_formatting then
-        vim.cmd[[
+        -- Setup formatting mappings/autocmds
+        vim.cmd [[
         augroup Format
-        autocmd! * <buffer>
-        autocmd BufWritePost <buffer> lua require 'lsp.formatting'.format()
+        autocmd!
+        autocmd BufWritePre  * undojoin | Neoformat
         augroup END
         ]]
 
-        vim.cmd [[command! Format lua require 'lsp.formatting'.format()]]
+        map("n", "<leader>f", ":lua vim.lsp.buf.formatting()<CR>", { buffer = true })
     end
-    if client.resolved_capabilities.goto_definition then
-        map("n", "gd", ":lua vim.lsp.buf.definition()<CR>", {buffer = true}, "Go to definition")
+
+    if client.resolved_capabilities.document_range_formatting then
+        map("n", "<leader>f", ":lua vim.lsp.buf.range_formatting()<CR>", { buffer = true })
     end
-    -- if client.resolved_capabilities.completion then
-    --     -- require 'completion'.on_attach()
-    -- end
+
+    map("n", "gd", ":lua vim.lsp.buf.definition()", { buffer = true })
+    map("n", "gD", ":lua vim.lsp.buf.declaration()", { buffer = true })
+    map("n", "gi", ":lua vim.lsp.buf.implementation()", { buffer = true })
+
+    map("n", "<leader>ca", ":Lspsaga code_action<CR>", { buffer = true })
+    map("i", "<C-Space>", "<C-o>:Lspsaga code_action<CR>", { buffer = true })
+    map("v", "<leader>ca", ":Lspsaga range_code_action<CR>", { buffer = true })
+
+    map("n", "<leader>r", ":Lspsaga rename<CR>", { buffer = true })
+
+    map("n", "Gd", ":Lspsaga preview_definition<CR>", { buffer = true })
+    map("n", "Gh", ":Lspsaga lsp_finder<CR>", { buffer = true })
+    map("n", "K", ":Lspsaga hover_doc<CR>", { buffer = true })
+
+    map("n", "<leader>e", ":Lspsaga show_line_diagnostics<CR>", { buffer = true })
+    map("n", "[e", ":Lspsaga diagnostic_jump_prev<CR>", { buffer = true })
+    map("n", "]e", ":Lspsaga diagnostic_jump_next<CR>", { buffer = true })
 end
 
-----------  Python  ---------------
-local black  = require "efm/black"
-local isort  = require "efm/isort"
-local flake8 = require "efm/flake8"
-local mypy   = require "efm/mypy"
-
------------  Lua  -----------------
-local luafmt = require "efm/luafmt"
------------------------------------
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+capabilities.textDocument.completion.completionItem.snippetSupport = true
 
 local config = {
-    efm = {
-        init_options = {documentFormatting = true},
-        root_dir = vim.loop.cwd,
-        settings = {
-            rootMarkers = {".git"},
-            languages = {
-                python = {black, isort, flake8, mypy},
-                lua = {luafmt}
-            }
-        }
-    },
     lua = {
         settings = {
             Lua = {
@@ -130,8 +80,7 @@ local config = {
     }
 }
 
-M.setup = function()
-    local lspinstall = require "lspinstall"
+local function setupServers()
     lspinstall.setup()
 
     local servers = lspinstall.installed_servers()
@@ -139,17 +88,14 @@ M.setup = function()
     for _, server in pairs(servers) do
         local cfg = config[server] or {}
         cfg.on_attach = cfg.on_attach or on_attach
+        cfg.capabilities = cfg.capabilities or capabilities
 
-        vim.schedule(function()
-            local lsp = require "lspconfig"
-            pcall(lsp[server].setup, cfg)
-            end)
+        require("lspconfig")[server].setup(cfg)
     end
 end
 
-require 'lspinstall'.post_install_hook = function()
-    M.setup()
+setupServers()
+lspinstall.post_install_hook = function()
+    setupServers()
     vim.cmd [[bufdo e]]
 end
-
-return M
