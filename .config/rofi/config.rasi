@@ -3,7 +3,7 @@ configuration {
 
     width: 500;
     lines: 5;
-    font: "JetbrainsMono Nerd Fonts Mono 15";
+    font: "JetbrainsMono Nerd Font Mono 15";
 
     monitor: -4;
 
@@ -12,8 +12,8 @@ configuration {
 
     modi: "window,run,drun";
     display-run: " ";
-    display-drun: "  ";
-    display-window: "  ";
+    display-drun: "";
+    display-window: "";
 
     drun-display-format: "{icon} {name}";
 
