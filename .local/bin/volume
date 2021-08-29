@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+case $1 in
+    "inc")
+        amixer -q -D pulse sset Master 2%+
+        ;;
+    "dec")
+        amixer -q -D pulse sset Master 2%-
+        ;;
+    "mute")
+        amixer -q -D pulse sset Master toggle
+        ;;
+esac
+
+AMIXER=$(amixer -D pulse sget Master)
+VOLUME=$(echo $AMIXER | grep 'Mono:' | awk -F'[][]' '{ print $2 }' | tr -d "%")
+MUTE=$(echo $AMIXER | grep -o '\[off\]' | tail -n 1)
+
+if [ "$VOLUME" -eq 0 ]; then
+    ICON=audio-volume-off
+else if [ "$VOLUME" -le 20 ]; then
+        ICON=audio-volume-low
+else if [ "$VOLUME" -le 60 ]; then
+            ICON=audio-volume-medium
+else
+            ICON=audio-volume-high
+fi
+fi
+fi
+
+if [ "$MUTE" == "[off]" ]; then
+    ICON=audio-volume-muted
+fi
+
+NOTI_ID=$(notify-send.py "Volume" "$VOLUME" \
+                        --hint string:image-path:$ICON boolean:transient:true \
+                                int:has-percentage:$VOLUME \
+                        --replaces-process "volume")
