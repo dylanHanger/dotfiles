@@ -2,10 +2,10 @@
 
 case $1 in
     "inc")
-        amixer -q -D pulse sset Master 2%+
+        amixer -q -D pulse sset Master 2%+ unmute
         ;;
     "dec")
-        amixer -q -D pulse sset Master 2%-
+        amixer -q -D pulse sset Master 2%- unmute
         ;;
     "mute")
         amixer -q -D pulse sset Master toggle
