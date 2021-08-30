@@ -199,6 +199,11 @@ packer.startup(function(use)
         "sbdchd/neoformat",
     }
 
+    -- LISP style parenthises
+    use {
+        "eraserhd/parinfer-rust",
+        run = "cargo build --release"
+    }
 
     ----------------------------------------
     --             DEBUGGING              --
@@ -322,5 +327,12 @@ packer.startup(function(use)
     use {
         "antoinemadec/FixCursorHold.nvim"
     }
+
+
+    ----------------------------------------
+    --             LANGUAGES              --
+    ----------------------------------------
+    
+    use "elkowar/yuck.vim"
 
 end)
