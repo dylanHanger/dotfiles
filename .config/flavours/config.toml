@@ -1,0 +1,73 @@
+[[item]]
+file = "~/.config/kitty/themes/base16.conf"
+template = "kitty"
+subtemplate = "default-256"
+rewrite = true
+hook = "killall -s SIGUSR1 kitty"
+
+[[item]]
+file = "~/.config/nvim/lua/theme.lua"
+template = "nvim"
+start = "-- Start flavours"
+end = "-- End flavours"
+hook = "reload-nvim.py"
+
+# [[item]]
+# file = "~/.config/Code/User/settings.json"
+# template = "vscode"
+# start = "// Start flavours"
+# end = "// End flavours"
+
+[[item]]
+file = "~/.config/discocss/custom.css"
+template = "discocss"
+start = "/* Start flavours */"
+end = "/* End flavours */"
+
+[[item]]
+file = "~/.config/bspwm/colors.sh"
+template = "bspwm"
+rewrite = true
+hook = "bash ~/.config/bspwm/colors.sh"
+
+[[item]]
+file = "~/.themes/FlatColor/colors3"
+template = "gtk-flatcolor"
+subtemplate = "gtk-3"
+rewrite = true
+hook = "xsettingsd &"
+
+[[item]]
+file = "~/.themes/FlatColor/colors2"
+template = "gtk-flatcolor"
+subtemplate = "gtk-2"
+rewrite = true
+hook = "xsettingsd &"
+
+[[item]]
+file = "~/.config/spicetify/Themes/base16/color.ini"
+template = "spicetify"
+rewrite = true
+hook = "bash reload-spotify.sh"
+
+[[item]]
+file = "~/.config/spicetify/Themes/Ziro/color.ini"
+template = "spicetify"
+subtemplate = "themed"
+hook = "bash reload-spotify.sh"
+
+[[item]]
+file = "~/.config/bat/themes/base16.tmTheme"
+template = "bat"
+rewrite = true
+
+[[item]]
+file = "~/.config/rofi/themes/base16.rasi"
+template = "rofi"
+subtemplate = "colors"
+rewrite = true
+
+[[item]]
+file = "~/.config/telegram/base16.tdesktop-theme"
+template = "telegram"
+rewrite = true

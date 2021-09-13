@@ -15,7 +15,7 @@ bspc config border_width         2
 bspc config window_gap          12
 
 bspc config split_ratio          0.5
-bspc config borderless_monocle   true
+bspc config borderless_monocle   false # I would prefer if this only applied to pseudo-tiled windows
 bspc config gapless_monocle      true
 bspc config single_monocle       true
 
@@ -33,8 +33,9 @@ playerctld daemon
 # dunst &
 deadd-notification-center &
 alttab -w 1 -d 1 &
-
-bash /home/dylan/.config/bspwm/bspwm_colors.sh &
+xsettingsd & #???
+xsetroot -cursor_name left_ptr
+bash /home/dylan/.config/bspwm/colors.sh &
 
 # Disable rounded corners in monocle mode
 bspc subscribe desktop_layout | while read -r Event
