@@ -12,6 +12,7 @@ require("compe").setup {
    preselect = "enable",
    source_timeout = 200,
    source = {
+      path = true,
       buffer = { kind = "﬘", true },
       luasnip = { kind = "﬌", true },
       nvim_lsp = true,

@@ -1,3 +1,4 @@
+local utils = require("utils")
 local g = vim.g
 
 g.dashboard_disable_at_vimenter = 0 -- dashboard is disabled by default
@@ -16,10 +17,12 @@ g.dashboard_custom_header = {
    "  ⣰⣿⣿⠛⠻⣿⣿⡦⢹⣿⣷   ⢊⣿⣿⡏  ⢸⣿⣿⡇ ⢀⣠⣄⣾⠄   ",
    " ⣠⣿⠿⠛ ⢀⣿⣿⣷⠘⢿⣿⣦⡀ ⢸⢿⣿⣿⣄ ⣸⣿⣿⡇⣪⣿⡿⠿⣿⣷⡄  ",
    " ⠙⠃   ⣼⣿⡟  ⠈⠻⣿⣿⣦⣌⡇⠻⣿⣿⣷⣿⣿⣿ ⣿⣿⡇ ⠛⠻⢷⣄ ",
-   "    ⢻⣿⣿⣄   ⠈⠻⣿⣿⣿⣷⣿⣿⣿⣿⣿⡟ ⠫⢿⣿⡆       ",
+   "      ⢻⣿⣿⣄   ⠈⠻⣿⣿⣿⣷⣿⣿⣿⣿⣿⡟ ⠫⢿⣿⡆     ",
    "       ⠻⣿⣿⣿⣿⣶⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⡟⢀⣀⣤⣾⡿⠃     ",
    "                                   ",
 }
+
+g.dashboard_custom_footer = utils.split(utils.capture("fortune -s"), "[^\r\n]+")
 
 g.dashboard_custom_section = {
    a = { description = { "  Find File                 SPC s f" }, command = "Telescope find_files" },
@@ -29,3 +32,5 @@ g.dashboard_custom_section = {
    e = { description = { "  Bookmarks                 SPC s m" }, command = "Telescope marks" },
    -- f = { description = { "  Load Last Session                " }, command = "SessionLoad" },
 }
+
+vim.cmd[[autocmd FileType dashboard set showtabline=0 | autocmd WinLeave <buffer> set showtabline=2]]

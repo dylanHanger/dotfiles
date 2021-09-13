@@ -33,31 +33,14 @@ packer.startup(function(use)
 
     -- Color Scheme
     use {
-        "eddyekofo94/gruvbox-flat.nvim",
-        config = function()
-            vim.g.gruvbox_flat_style = "hard"
-            vim.api.nvim_command [[colorscheme gruvbox-flat]]
-        end
+        "RRethy/nvim-base16",
     }
 
     -- Statusline
-    -- GalaxyLine is so hard to set up, using Lualine while I set everything up
-    --[[ use {
-        "glepnir/galaxyline.nvim",
-        requires = {
-            {"kyazdani42/nvim-web-devicons", opt=true}
-        },
-        config = function()
-            --require("plugins.statusline")
-        end,
-    } ]]
     use {
-        "hoob3rt/lualine.nvim",
+        "shadmansaleh/lualine.nvim",
         config = function()
-            --require("plugins.statusline")
-            require("lualine").setup {
-                options = { theme = "gruvbox-flat" }
-            }
+            require("plugins.configs.statusline")
         end
     }
     -- Bufferline
@@ -141,6 +124,13 @@ packer.startup(function(use)
         end,
     }
 
+    use {
+        "nvim-treesitter/nvim-treesitter-refactor",
+        config = function()
+            require("plugins.configs.treesitter.refactor")
+        end
+    }
+
     -- LSP UI
     use {
         "glepnir/lspsaga.nvim",
@@ -208,6 +198,14 @@ packer.startup(function(use)
     ----------------------------------------
     --             DEBUGGING              --
     ----------------------------------------
+    
+    use {
+        "nvim-treesitter/playground",
+        config = function()
+            require("plugins.configs.treesitter.playground")
+        end
+    }
+
     ----------------------------------------
     --              ACTIONS               --
     ----------------------------------------

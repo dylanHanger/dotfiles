@@ -31,9 +31,9 @@ local function on_attach(client, bufnr)
         map("n", "<leader>f", ":lua vim.lsp.buf.range_formatting()<CR>", { buffer = true })
     end
 
-    map("n", "gd", ":lua vim.lsp.buf.definition()", { buffer = true })
-    map("n", "gD", ":lua vim.lsp.buf.declaration()", { buffer = true })
-    map("n", "gi", ":lua vim.lsp.buf.implementation()", { buffer = true })
+    map("n", "gd", ":lua vim.lsp.buf.definition()<CR>", { buffer = true })
+    map("n", "gD", ":lua vim.lsp.buf.declaration()<CR>", { buffer = true })
+    map("n", "gi", ":lua vim.lsp.buf.implementation()<CR>", { buffer = true })
 
     map("n", "<leader>ca", ":Lspsaga code_action<CR>", { buffer = true })
     map("i", "<C-Space>", "<C-o>:Lspsaga code_action<CR>", { buffer = true })
@@ -66,7 +66,8 @@ local config = {
                         -- Neovim
                         "vim",
                         -- Packer
-                        "use"
+                        "use",
+                        "use_rocks"
                     }
                 },
                 workspace = {

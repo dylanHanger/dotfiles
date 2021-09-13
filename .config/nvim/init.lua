@@ -3,7 +3,7 @@ local modules = {
 	"plugins",
 	"autocmds",
 	"lsp",
-	"mappings"
+	"mappings",
 }
 
 for i = 1, #modules do
@@ -11,3 +11,5 @@ for i = 1, #modules do
 		require("utils").error("Failed to load", modules[i])
 	end
 end
+
+require("utils").reload("theme").load_colors()

@@ -1,6 +1,6 @@
 local M = {}
 
-M.map = function(modes, key, action, options)
+function M.map(modes, key, action, options)
   local defaultOptions = {
     noremap = true,
     silent = true,
@@ -34,6 +34,28 @@ function M.highlight(group, fg, bg, gui)
     cmd = cmd .. " gui=" .. gui
   end
   vim.cmd(cmd)
+end
+
+function M.capture(cmd)
+  local f = assert(io.popen(cmd, 'r'))
+  local s = assert(f:read('*a'))
+  f:close()
+  s = s:gsub('^%s+', '')
+  s = s:gsub('%s+$', '')
+  return s
+end
+
+function M.split(input, pattern)
+  local t = {}
+  for str in input:gmatch(pattern) do
+	table.insert(t, str)
+  end
+  return t
+end
+
+function M.reload(module)
+  package.loaded[module] = nil
+  return require(module)
 end
 
 function M.log(msg, hl, name)

@@ -1,7 +1,58 @@
 local bufferline = require("bufferline")
 
-local colors = require("gruvbox.colors").setup()
-require("utils").highlight("BufferLineExplorer", colors.blue, colors.black, "bold")
+local colors = require("theme").colors
+require("utils").highlight("BufferLineExplorer", colors.base07, colors.base00, "bold")
+
+_G.addbuffer = function()
+   local tabbuffers = vim.g.tabbuffers
+
+   local tabnr = ""..vim.fn.tabpagenr()
+   local bufnr = ""..vim.fn.bufnr()
+
+   if tabbuffers[tabnr] == nil then
+      tabbuffers[tabnr] = {}
+   end
+
+   tabbuffers[tabnr][bufnr] = true
+   vim.g.tabbuffers = tabbuffers
+end
+
+_G.removebuffer = function()
+   local tabbuffers = vim.g.tabbuffers
+
+   local tabnr = ""..vim.fn.tabpagenr()
+   local bufnr = ""..vim.fn.expand("<abuf>")
+
+   if tabbuffers[tabnr] == nil then
+      return
+   end
+
+   tabbuffers[tabnr][bufnr] = nil
+   if #tabbuffers[tabnr] == 0 then
+      tabbuffers[tabnr] = nil
+   end
+   
+   vim.g.tabbuffers = tabbuffers
+end
+
+_G.removetab = function()
+   local tabnr = ""..vim.fn.expand("<afile>")
+   vim.cmd("unlet g:tabbuffers["..tabnr.."]")
+end
+
+vim.cmd [[
+   let g:tabbuffers = {}
+
+   augroup TabBuffers
+   autocmd!
+
+   autocmd BufEnter * lua addbuffer()
+   autocmd BufDelete * lua removebuffer()
+
+   autocmd TabClosed * lua removetab()
+
+   augroup END
+]]
 
 bufferline.setup {
    options = {
@@ -20,24 +71,12 @@ bufferline.setup {
       show_buffer_close_icons = true,
       separator_style = "thin",
       always_show_bufferline = true,
-      custom_filter = function(bufnr)
-         -- Func to filter out our managed/persistent split terms
-         local present_type, type = pcall(function()
-            return vim.api.nvim_buf_get_var(bufnr, "term_type")
-         end)
+      -- custom_filter = function(bufnr)
+      --    local current_tab  = ""..vim.fn.tabpagenr()
+      --    local open_buffers = vim.g.tabbuffers[current_tab];
 
-         if present_type then
-            if type == "vert" then
-               return false
-            elseif type == "hori" then
-               return false
-            else
-               return true
-            end
-         else
-            return true
-         end
-      end,
+      --    return open_buffers and open_buffers[""..bufnr] or false
+      -- end,
       close_command = "Bdelete! %d",
       right_mouse_command = "Bdelete! %d"
    },

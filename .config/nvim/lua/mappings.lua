@@ -33,6 +33,14 @@ map("n", "<leader>ss", ":Telescope treesitter<CR>") -- Search Symbols
 map("n", "<leader>sm", ":DashboardJumpMarks<CR>") -- Search Marks
 
 ----------------------------------------
+--              WINDOWS               --
+----------------------------------------
+map("n", "<C-Right>", "<C-w><Right>")
+map("n", "<C-Left>", "<C-w><Left>")
+map("n", "<C-Up>", "<C-w><Up>")
+map("n", "<C-Down>", "<C-w><Down>")
+
+----------------------------------------
 --             DASHBOARD              --
 ----------------------------------------
 map("n", "<leader>nf", ":DashboardNewFile<CR>") -- New File
