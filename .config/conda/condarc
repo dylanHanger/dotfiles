@@ -1,0 +1,9 @@
+changeps1: false
+conda-build:
+  # Replace /home/user/.local/share with your $XDG_DATA_HOME path, as the
+    # `conda-build.root-dir` option does not support environment expansion
+  root-dir: /home/dylan/.local/share/conda/conda-bld
+envs_dirs:
+  - ${XDG_DATA_HOME}/conda/envs
+pkgs_dirs:
+  - ${XDG_CACHE_HOME}/conda/pkgs
