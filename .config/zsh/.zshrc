@@ -82,6 +82,8 @@ ZSH_CUSTOM=$ZDOTDIR/custom
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(git)
 
+chpwd_functions=()
+
 source $ZSH/oh-my-zsh.sh
 
 # Starship prompt
@@ -91,6 +93,9 @@ source <(/usr/local/bin/starship init zsh --print-full-init)
 
 # Compilation flags
 export ARCHFLAGS="-arch x86_64"
+
+# chpwd hooks
+export chpwd_functions
 
 # Editor
 export EDITOR=vim

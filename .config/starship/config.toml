@@ -8,6 +8,7 @@ $directory\
 $git_branch\
 $git_status\
 [](fg:#FCA17D bg:#86BBD8)\
+$conda\
 $c\
 $elixir\
 $elm\
@@ -19,9 +20,7 @@ $nodejs\
 $nim\
 $rust\
 $scala\
-[](fg:#86BBD8 bg:#06969A)\
-$docker_context\
-[](fg:#06969A bg:#33658A)\
+[](fg:#86BBD8 bg:#33658A)\
 $time\
 [ ](fg:#33658A)\
 """
@@ -73,10 +72,10 @@ symbol = " "
 style = "bg:#86BBD8"
 format = '[ $symbol ($version) ]($style)'
 
-[docker_context]
-symbol = " "
-style = "bg:#06969A"
-format = '[ $symbol $context ]($style) $path'
+[conda]
+symbol = " "
+style = "bg:#86BBD8"
+format = '[ $symbol$environment ]($style)'
 
 [elixir]
 symbol = " "
