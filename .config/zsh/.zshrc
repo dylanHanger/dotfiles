@@ -87,7 +87,7 @@ chpwd_functions=()
 source $ZSH/oh-my-zsh.sh
 
 # Starship prompt
-source <(/usr/local/bin/starship init zsh --print-full-init)
+source <(starship init zsh --print-full-init)
 
 # User configuration
 
