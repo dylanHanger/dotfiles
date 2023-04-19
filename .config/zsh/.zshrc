@@ -80,7 +80,10 @@ ZSH_CUSTOM=$ZDOTDIR/custom
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git)
+plugins=(
+  git
+  zsh-nvm
+)
 
 chpwd_functions=()
 
@@ -90,6 +93,11 @@ source $ZSH/oh-my-zsh.sh
 source <(starship init zsh --print-full-init)
 
 # User configuration
+
+# NVM
+export NVM_DIR="$XDG_DATA_HOME/nvm"
+export NVM_LAZY_LOAD=true
+export NVM_LAZY_LOAD_EXTRA_COMMANDS=("nvim")
 
 # Compilation flags
 export ARCHFLAGS="-arch x86_64"
