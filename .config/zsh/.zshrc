@@ -96,7 +96,7 @@ source <(starship init zsh --print-full-init)
 
 # NVM
 export NVM_DIR="$XDG_DATA_HOME/nvm"
-export NVM_LAZY_LOAD=true
+export NVM_LAZY_LOAD=false
 export NVM_LAZY_LOAD_EXTRA_COMMANDS=("nvim")
 
 # Compilation flags
