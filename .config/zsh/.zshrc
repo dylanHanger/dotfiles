@@ -75,7 +75,8 @@ zstyle ':completion:*' cache-path $XDG_CACHE_HOME/zsh/zcompcache
 # Would you like to use another custom folder than $ZSH/custom?
 ZSH_CUSTOM=$ZDOTDIR/custom
 
-# NVM settings
+# NVM and NPM settings
+export NPM_CONFIG_USERCONFIG=$XDG_DATA_HOME/npm/npmrc
 export NVM_DIR="$XDG_DATA_HOME/nvm"
 export NVM_LAZY_LOAD=true
 export NVM_LAZY_LOAD_EXTRA_COMMANDS=("nvim")
