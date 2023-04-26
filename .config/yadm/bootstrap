@@ -1,12 +1,9 @@
 #!/usr/bin/env bash
 
-cd "$HOME"
+cd "$HOME" || exit
 
 echo "Init submodules"
 yadm submodule update --recursive --init
 
 echo "Install OMZ"
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-
-echo "Create directories"
-mkdir -p ${HISTFILE:a:h}
