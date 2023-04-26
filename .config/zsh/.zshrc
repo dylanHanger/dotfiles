@@ -75,6 +75,11 @@ zstyle ':completion:*' cache-path $XDG_CACHE_HOME/zsh/zcompcache
 # Would you like to use another custom folder than $ZSH/custom?
 ZSH_CUSTOM=$ZDOTDIR/custom
 
+# NVM settings
+export NVM_DIR="$XDG_DATA_HOME/nvm"
+export NVM_LAZY_LOAD=true
+export NVM_LAZY_LOAD_EXTRA_COMMANDS=("nvim")
+
 # Which plugins would you like to load?
 # Standard plugins can be found in $ZSH/plugins/
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
@@ -93,11 +98,6 @@ source $ZSH/oh-my-zsh.sh
 source <(starship init zsh --print-full-init)
 
 # User configuration
-
-# NVM
-export NVM_DIR="$XDG_DATA_HOME/nvm"
-export NVM_LAZY_LOAD=false
-export NVM_LAZY_LOAD_EXTRA_COMMANDS=("nvim")
 
 # Compilation flags
 export ARCHFLAGS="-arch x86_64"
