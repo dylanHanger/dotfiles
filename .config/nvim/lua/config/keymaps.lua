@@ -16,5 +16,5 @@ end
 -- <leader>bj to enter buffer picking mode
 local bufferline = require("bufferline")
 map("n", "<leader>bj", function()
-  bufferline.pick_buffer()
+  bufferline.pick()
 end, { desc = "Pick buffer to jump to" })
