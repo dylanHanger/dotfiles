@@ -11,7 +11,16 @@ bindkey -v
 
 # Path to your oh-my-zsh installation.
 export ZSH="$XDG_DATA_HOME/oh-my-zsh"
-export ZSH_COMPDUMP="$XDG_CACHE_HOME"/zsh/zcompdump-$ZSH_VERSION
+export ZSH_COMPCACHE="$XDG_CACHE_HOME"/zsh
+export ZSH_COMPDUMP="$ZSH_COMPCACHE"/zcompdump-$ZSH_VERSION
+
+zstyle ':completion:*' cache-path "$ZSH_COMPCACHE"
+autoload -Uz compinit 
+if [[ -n ${ZSH_COMPDUMP}(#qN.mh+24) ]]; then
+	compinit -d "$ZSH_COMPDUMP";
+else
+	compinit -C -d "$ZSH_COMPDUMP";
+fi;
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
@@ -70,7 +79,6 @@ export ZSH_COMPDUMP="$XDG_CACHE_HOME"/zsh/zcompdump-$ZSH_VERSION
 # or set a custom format using the strftime function format specifications,
 # see 'man strftime' for details.
 # HIST_STAMPS="mm/dd/yyyy"
-zstyle ':completion:*' cache-path $XDG_CACHE_HOME/zsh/zcompcache
 
 # Would you like to use another custom folder than $ZSH/custom?
 ZSH_CUSTOM=$ZDOTDIR/custom
