@@ -27,6 +27,7 @@ done
 
 # Starship prompt
 source <(starship init zsh --print-full-init)
+eval "$(zoxide init zsh)"
 
 # User configuration
 # Editor
