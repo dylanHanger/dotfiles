@@ -16,7 +16,7 @@ return {
       sign("DapBreakpointRejected", { text = "", texthl = "DapBreakpoint", linehl = "", numhl = "" })
       sign("DapBreakpointCondition", { text = "", texthl = "DapBreakpointCondition", linehl = "", numhl = "" })
       sign("DapLogPoint", { text = "", texthl = "DapLogPoint", linehl = "", numhl = "" })
-      sign("DapStopped", { text = "", texthl = "DapBreakpoint", linehl = "DapCurrentLine", numhl = "" })
+      sign("DapStopped", { text = "", texthl = "DapBreakpoint", linehl = "DapCurrentLine", numhl = "" })
 
       -- DAP Configurations
       dap.configurations.rust = {
