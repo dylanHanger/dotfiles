@@ -1,21 +1,22 @@
 return {
   {
     "mfussenegger/nvim-dap",
+    integration = {},
     config = function()
       local dap = require("dap")
 
-      -- Highlights
       local cutils = require("util.colors")
-      vim.api.nvim_set_hl(0, "DAPCurrentLine", {
+      vim.api.nvim_set_hl(0, "DapCurrentLine", {
         bg = cutils.hex_to_int("#535525"),
       })
 
       -- Signs
-      vim.fn.sign_define("DapBreakpoint", { text = "⬤", texthl = "DAPUIStop", linehl = "", numhl = "" })
-      vim.fn.sign_define("DapBreakpointCondition", { text = "", texthl = "DAPUIStop", linehl = "", numhl = "" })
-      vim.fn.sign_define("DapLogPoint", { text = "", texthl = "DAPUIStop", linehl = "", numhl = "" })
-      vim.fn.sign_define("DapStopped", { text = "", texthl = "DAPUIStop", linehl = "DAPCurrentLine", numhl = "" })
-      vim.fn.sign_define("DapBreakpointRejected", { text = "", texthl = "DAPUIStop", linehl = "", numhl = "" })
+      local sign = vim.fn.sign_define
+      sign("DapBreakpoint", { text = "⬤", texthl = "DapBreakpoint", linehl = "", numhl = "" })
+      sign("DapBreakpointRejected", { text = "", texthl = "DapBreakpoint", linehl = "", numhl = "" })
+      sign("DapBreakpointCondition", { text = "", texthl = "DapBreakpointCondition", linehl = "", numhl = "" })
+      sign("DapLogPoint", { text = "", texthl = "DapLogPoint", linehl = "", numhl = "" })
+      sign("DapStopped", { text = "", texthl = "DapBreakpoint", linehl = "DapCurrentLine", numhl = "" })
 
       -- DAP Configurations
       dap.configurations.rust = {
