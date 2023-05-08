@@ -1,7 +1,7 @@
 palette = "catppuccin_mocha"
 
 format = """
-[](fg:green)$os\
+ [](fg:green)$os\
 $username[](fg:green bg:flamingo)\
 $hostname[](fg:flamingo bg:maroon)\
 $git_branch$git_status[](fg:maroon bg:mauve)\
@@ -9,8 +9,8 @@ $directory[](fg:mauve)\
 $fill\
 [](fg:blue)$conda\
 [](fg:yellow bg:blue)$rust\
-[](fg:pink bg:yellow)$time[](fg:pink)
-$character
+[](fg:pink bg:yellow)$time[](fg:pink) 
+ $character
 """
 
 # An alternative to the username module which displays a symbol that
