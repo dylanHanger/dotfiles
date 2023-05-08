@@ -1,5 +1,5 @@
 # Lines configured by zsh-newuser-install
-HISTFILE=$XDG_STATE_HOME/zsh/history
+HISTFILE="$XDG_STATE_HOME/zsh/history"
 HISTSIZE=10000
 SAVEHIST=50000
 setopt autocd extendedglob notify
@@ -7,8 +7,8 @@ unsetopt beep nomatch
 bindkey -v
 # End of lines configured by zsh-newuser-install
 
-export ZSH_COMPCACHE="$XDG_CACHE_HOME"/zsh
-export ZSH_COMPDUMP="$ZSH_COMPCACHE"/zcompdump-$ZSH_VERSION
+export ZSH_COMPCACHE="$XDG_CACHE_HOME/zsh"
+export ZSH_COMPDUMP="$ZSH_COMPCACHE/zcompdump-$ZSH_VERSION"
 
 zstyle ':completion:*' cache-path "$ZSH_COMPCACHE"
 autoload -Uz compinit 
@@ -21,9 +21,12 @@ fi;
 chpwd_functions=()
 
 # Source all .zsh files in ./custom/
-for f in "$ZDOTDIR"/custom/*.zsh; do
+for f in "$ZDOTDIR/custom/*.zsh"; do
 	source "$f"
 done
+
+# Enable autosuggestions
+source "$ZDOTDIR/custom/zsh-autosuggestions/zsh-autosuggestions.zsh"
 
 # Starship prompt
 source <(starship init zsh --print-full-init)
