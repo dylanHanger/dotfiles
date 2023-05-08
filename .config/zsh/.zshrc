@@ -21,7 +21,7 @@ fi;
 chpwd_functions=()
 
 # Source all .zsh files in ./custom/
-for f in "$ZDOTDIR/custom/*.zsh"; do
+for f in "$ZDOTDIR/custom"/*.zsh; do
 	source "$f"
 done
 
