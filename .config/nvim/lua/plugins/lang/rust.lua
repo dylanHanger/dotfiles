@@ -1,5 +1,4 @@
 -- https://github.com/appelgriebsch/Nv/blob/main/lua/plugins/extras/lang/rust.lua
--- TODO: Get launch configuration working with nice CARGO_MANIFEST_DIR
 -- TODO: Stop showing disassembly when terminating
 return {
   -- extend auto completion
@@ -55,19 +54,34 @@ return {
         rust_analyzer = function(_, opts)
           require("lazyvim.util").on_attach(function(client, buffer)
             if client.name == "rust_analyzer" then
+              -- TODO: Make this use the same map function as `keymaps.lua`
               vim.keymap.set("n", "K", "<CMD>RustHoverActions<CR>", { buffer = buffer })
-              vim.keymap.set("n", "<leader>ct", "<CMD>RustDebuggables<CR>", { buffer = buffer, desc = "Run Test" })
+              vim.keymap.set("n", "<leader>dr", "<CMD>RustDebuggables<CR>", { buffer = buffer, desc = "Run Test" })
             end
           end)
 
+          local dap = require("dap")
+          local rtdap = require("rust-tools.dap")
           local mason_registry = require("mason-registry")
+
           local rust_tools_opts = vim.tbl_deep_extend("force", opts, {
             tools = {
+              on_initialized = function()
+                vim.api.nvim_create_autocmd({ "BufWritePost", "BufEnter", "CursorHold", "InsertLeave" }, {
+                  pattern = { "*.rs" },
+                  callback = function()
+                    local _, _ = pcall(vim.lsp.codelens.refresh)
+                  end,
+                })
+              end,
               hover_actions = {
                 auto_focus = false,
-                border = "none",
+                border = "rounded",
               },
-              -- Can't make these look nice until github.com/neovim/neovim/pull/9496 is merged
+              runnables = {
+                use_telescope = true,
+              },
+              -- Can't make these look nice until https://github.com/neovim/neovim/pull/9496 is merged
               inlay_hints = {
                 -- automatically set inlay hints (type hints)
                 -- default: true
@@ -128,7 +142,7 @@ return {
             local extension_path = codelldb:get_install_path() .. "/extension/"
 
             local codelldb_path = extension_path .. "adapter/codelldb"
-            local liblldb_path = extension_path .. "lldb/lib/liblldb.so"
+            local liblldb_path = extension_path .. "lldb/lib/liblldb"
 
             local this_os = vim.loop.os_uname().sysname
             if this_os:find("Windows") then
@@ -139,12 +153,52 @@ return {
               liblldb_path = liblldb_path .. (this_os == "Linux" and ".so" or ".dylib")
             end
 
+            local adapter = rtdap.get_codelldb_adapter(codelldb_path, liblldb_path)
+            dap.adapters.rust = adapter
             rust_tools_opts = vim.tbl_deep_extend("force", rust_tools_opts, {
               dap = {
-                adapter = require("rust-tools.dap").get_codelldb_adapter(codelldb_path, liblldb_path),
+                adapter = adapter,
               },
             })
           end
+
+          -- FIXME: RustDebuggables creates and uses its own DAP config and this gets ignored
+          dap.configurations.rust = {
+            {
+              name = "Launch",
+              type = "rt_lldb",
+              request = "launch",
+              cwd = "${workspaceFolder}",
+              program = function()
+                return "${workspaceFolder}/target/debug/${workspaceFolderBasename}"
+              end,
+              stopOnEntry = false,
+              args = {},
+              env = {
+                CARGO_MANIFEST_DIR = "${workspaceFolder}",
+              },
+              sourceLanguages = { "rust" },
+              showDisassembly = "never",
+              initCommands = function()
+                local rustc_sysroot = vim.fn.trim(vim.fn.system("rustc --print sysroot"))
+
+                local script_import = 'command script import "' .. rustc_sysroot .. '/lib/rustlib/etc/lldb_lookup.py"'
+                local commands_file = rustc_sysroot .. "/lib/rustlib/etc/lldb_commands"
+
+                local commands = {}
+                local file = io.open(commands_file, "r")
+                if file then
+                  for line in file:lines() do
+                    table.insert(commands, line)
+                  end
+                  file:close()
+                end
+                table.insert(commands, 1, script_import)
+
+                return commands
+              end,
+            },
+          }
 
           require("rust-tools").setup(rust_tools_opts)
 

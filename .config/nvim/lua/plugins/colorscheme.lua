@@ -1,8 +1,5 @@
 local cutils = require("util.colors")
 
-cutils.set_hl("DapStoppedCurrentLine", {
-  bg = "#535525",
-})
 return {
   {
     "LazyVim/LazyVim",
@@ -49,8 +46,10 @@ return {
       },
       color_overrides = {},
       custom_highlights = function(colors)
+        local dark_yellow = cutils.darken(colors.yellow, 75)
         return {
           InlayHint = { fg = colors.surface1 },
+          DapStoppedCurrentLine = { bg = dark_yellow },
         }
       end,
       integrations = {
