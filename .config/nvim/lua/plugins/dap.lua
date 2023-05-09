@@ -5,18 +5,13 @@ return {
     config = function()
       local dap = require("dap")
 
-      local cutils = require("util.colors")
-      vim.api.nvim_set_hl(0, "DapCurrentLine", {
-        bg = cutils.hex_to_int("#535525"),
-      })
-
       -- Signs
       local sign = vim.fn.sign_define
       sign("DapBreakpoint", { text = "⬤", texthl = "DapBreakpoint", linehl = "", numhl = "" })
       sign("DapBreakpointRejected", { text = "", texthl = "DapBreakpoint", linehl = "", numhl = "" })
       sign("DapBreakpointCondition", { text = "", texthl = "DapBreakpointCondition", linehl = "", numhl = "" })
       sign("DapLogPoint", { text = "", texthl = "DapLogPoint", linehl = "", numhl = "" })
-      sign("DapStopped", { text = "", texthl = "DapBreakpoint", linehl = "DapCurrentLine", numhl = "" })
+      sign("DapStopped", { text = "", texthl = "DapStopped", linehl = "DapStoppedCurrentLine", numhl = "" })
 
       -- DAP Configurations
       dap.configurations.rust = {
@@ -34,6 +29,7 @@ return {
           env = {
             CARGO_MANIFEST_DIR = "${workspaceFolder}",
           },
+          sourceLanguages = { "rust" },
           showDisassembly = "never",
           initCommands = function()
             local rustc_sysroot = vim.fn.trim(vim.fn.system("rustc --print sysroot"))
@@ -57,7 +53,7 @@ return {
       }
 
       -- Override default configurations with `launch.json`
-      require("dap.ext.vscode").load_launchjs(".nvim/launch.json", { lldb = { "c", "cpp" }, rt_lldb = { "rust" } })
+      require("dap.ext.vscode").load_launchjs(".nvim/launch.json", { lldb = { "c", "cpp", "rust" } })
     end,
   },
 }

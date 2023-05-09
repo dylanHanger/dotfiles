@@ -8,6 +8,17 @@ local function roundH(num)
   return math.floor((num * 100) + 0.5) / 100
 end
 
+function M.get_hl(hl)
+  return vim.api.nvim_get_hl(0, hl)
+end
+function M.set_hl(name, hl)
+  return vim.api.nvim_set_hl(0, name, hl)
+end
+
+function M.int_to_hex(int_color)
+  return string.format("#%06x", int_color)
+end
+
 function M.hex_to_int(hex_color)
   local hex = hex_color:gsub("#", "")
   if #hex < 6 then

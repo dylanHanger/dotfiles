@@ -67,6 +67,7 @@ return {
                 auto_focus = false,
                 border = "none",
               },
+              -- Can't make these look nice until github.com/neovim/neovim/pull/9496 is merged
               inlay_hints = {
                 -- automatically set inlay hints (type hints)
                 -- default: true

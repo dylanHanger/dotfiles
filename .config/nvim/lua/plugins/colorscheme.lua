@@ -1,3 +1,8 @@
+local cutils = require("util.colors")
+
+cutils.set_hl("DapStoppedCurrentLine", {
+  bg = "#535525",
+})
 return {
   {
     "LazyVim/LazyVim",
@@ -9,7 +14,9 @@ return {
   {
     "catppuccin/nvim",
     name = "catppuccin",
-
+    config = function(_, opts)
+      require("catppuccin").setup(opts)
+    end,
     opts = {
       flavour = "mocha", -- latte, frappe, macchiato, mocha
       background = { -- :h background
@@ -41,10 +48,13 @@ return {
         operators = {},
       },
       color_overrides = {},
-      custom_highlights = {},
+      custom_highlights = function(colors)
+        return {
+          InlayHint = { fg = colors.surface1 },
+        }
+      end,
       integrations = {
         cmp = true,
-        dap = true,
         gitsigns = true,
         illuminate = true,
         mini = true,
@@ -52,7 +62,33 @@ return {
         nvimtree = true,
         telescope = true,
         treesitter = true,
+        ts_rainbow2 = true,
         which_key = true,
+        semantic_tokens = true,
+        -- Special integrations
+        indent_blankline = {
+          enabled = true,
+          colored_indent_levels = true,
+        },
+        native_lsp = {
+          enabled = true,
+          virtual_text = {
+            errors = { "italic" },
+            hints = { "italic" },
+            warnings = { "italic" },
+            information = { "italic" },
+          },
+          underlines = {
+            errors = { "underline" },
+            hints = { "underline" },
+            warnings = { "underline" },
+            information = { "underline" },
+          },
+        },
+        dap = {
+          enabled = true,
+          enable_ui = true,
+        },
         -- For more plugins integrations please scroll down (https://github.com/catppuccin/nvim#integrations)
       },
     },
