@@ -2,7 +2,8 @@
 -- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
 -- Add any additional keymaps here
 
-local util = require("lazyvim.util")
+local lazyutil = require("lazyvim.util")
+local util = require("util")
 
 local function map(mode, lhs, rhs, opts)
   local keys = require("lazy.core.handler").handlers.keys
@@ -39,16 +40,29 @@ end, { desc = "Notification history" })
 
 --- LAZYGIT ---
 map("n", "<leader>gG", function()
-  util.float_term({ "lazygit" }, { cwd = util.get_root(), esc_esc = false })
+  lazyutil.float_term({ "lazygit" }, { cwd = lazyutil.get_root(), esc_esc = false })
 end, { desc = "Lazygit (root dir)" })
+
+-- FIXME: This doesn't work, it exits with code 1 immediately
+map("n", "<leader>gy", function()
+  lazyutil.float_term({
+    "lazygit",
+    '--use-config-file="$HOME/.config/yadm/lazygit.yml,$HOME/.config/lazygit/config.yml"',
+    '--work-tree="$HOME"',
+    '--git-dir="$HOME/.local/share/yadm/repo.git"',
+  }, {
+    cwd = vim.fn.expand("~"),
+    esc_esc = false,
+  })
+end, { desc = "Lazygit (dotfiles)" })
 
 map("n", "<leader>gg", function()
   ---@type string?
   local path = vim.api.nvim_buf_get_name(0)
   path = path ~= "" and vim.loop.fs_realpath(path) or nil
   if path then
-    util.float_term({ "lazygit" }, { cwd = vim.fn.fnamemodify(path, ":p:h"), esc_esc = false })
+    lazyutil.float_term({ "lazygit" }, { cwd = vim.fn.fnamemodify(path, ":p:h"), esc_esc = false })
   else
-    util.float_term({ "lazygit" }, { esc_esc = false })
+    lazyutil.float_term({ "lazygit" }, { esc_esc = false })
   end
 end, { desc = "Lazygit (cwd)" })

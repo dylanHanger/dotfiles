@@ -12,3 +12,4 @@ alias cat="bat --style=plain --paging=never"
 
 alias cd="z"
 
+alias lazyyadm='lazygit --use-config-file="$HOME/.config/yadm/lazygit.yml,$HOME/.config/lazygit/config.yml" --work-tree="$HOME" --git-dir="$HOME/.local/share/yadm/repo.git"'
