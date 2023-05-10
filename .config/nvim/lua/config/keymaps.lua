@@ -43,15 +43,14 @@ map("n", "<leader>gG", function()
   lazyutil.float_term({ "lazygit" }, { cwd = lazyutil.get_root(), esc_esc = false })
 end, { desc = "Lazygit (root dir)" })
 
--- FIXME: This doesn't work, it exits with code 1 immediately
 map("n", "<leader>gy", function()
+  local ex = vim.fn.expand
   lazyutil.float_term({
     "lazygit",
-    '--use-config-file="$HOME/.config/yadm/lazygit.yml,$HOME/.config/lazygit/config.yml"',
-    '--work-tree="$HOME"',
-    '--git-dir="$HOME/.local/share/yadm/repo.git"',
+    ex("--use-config-file=$HOME/.config/yadm/lazygit.yml,$HOME/.config/lazygit/config.yml"),
+    ex("--work-tree=$HOME"),
+    ex("--git-dir=$HOME/.local/share/yadm/repo.git"),
   }, {
-    cwd = vim.fn.expand("~"),
     esc_esc = false,
   })
 end, { desc = "Lazygit (dotfiles)" })
