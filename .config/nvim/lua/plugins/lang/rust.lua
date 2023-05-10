@@ -53,10 +53,61 @@ return {
       setup = {
         rust_analyzer = function(_, opts)
           require("lazyvim.util").on_attach(function(client, buffer)
+            -- TODO: Clean this shit up
+            -- TODO: Display progress of cargo compilation instead of a one-time notification
+            local cargoDebug = function()
+              local cargo = require("util.cargo")
+              local start = function(args)
+                local startDap = function(program)
+                  local dap = require("dap")
+
+                  -- Pick the correct dap config
+                  local dap_config
+                  if #dap.configurations.rust == 1 then
+                    dap_config = dap.configurations.rust[1]
+                  elseif #dap.configurations.rust >= 1 then
+                    -- TODO: Prompt the use to pick one
+                    vim.notify("Multiple configurations not yet supported.")
+                  else
+                    dap_config = {
+                      name = "Rust tools debug",
+                      stopOnEntry = false,
+
+                      -- if you change `runInTerminal` to true, you might need to change the yama/ptrace_scope setting:
+                      --
+                      --    echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope
+                      --
+                      -- Otherwise you might get the following error:
+                      --
+                      --    Error on launch: Failed to attach to the target process
+                      --
+                      -- But you should be aware of the implications:
+                      -- https://www.kernel.org/doc/html/latest/admin-guide/LSM/Yama.html
+                      runInTerminal = false,
+                    }
+                  end
+
+                  vim.tbl_deep_extend("force", dap_config, {
+                    type = "rt_lldb",
+                    request = "launch",
+                    program = program,
+                    args = args ~= nil and args.executableArgs or {}, -- TODO: Allow me to insert custom args here
+                    cwd = args ~= nil and args.workspaceRoot,
+                  })
+
+                  dap.run(dap_config)
+                end
+
+                cargo.build_and_run(args, startDap)
+              end
+
+              cargo.get_args("build", start)
+            end
+
             if client.name == "rust_analyzer" then
               -- TODO: Make this use the same map function as `keymaps.lua`
               vim.keymap.set("n", "K", "<CMD>RustHoverActions<CR>", { buffer = buffer })
-              vim.keymap.set("n", "<leader>dr", "<CMD>RustDebuggables<CR>", { buffer = buffer, desc = "Run Test" })
+              vim.keymap.set("n", "<leader>dr", cargoDebug, { buffer = buffer, desc = "Run" })
             end
           end)
 
@@ -163,6 +214,10 @@ return {
           end
 
           -- FIXME: RustDebuggables creates and uses its own DAP config and this gets ignored
+          -- Ideally, rust-tools.nvim should take in configuration options (excl. the parts set by `.start`)
+          -- The only part that really needs to be set by `.start` is `program`. Everything else can be set by the user
+          -- Additionally, it should be capable of running `cargo debug`/`cargo test` directly,
+          -- without requiring the user to select a runnable
           dap.configurations.rust = {
             {
               name = "Launch",
