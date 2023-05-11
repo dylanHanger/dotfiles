@@ -61,10 +61,6 @@ return {
                   local _, _ = pcall(vim.lsp.codelens.refresh)
                 end,
               })
-              vim.api.nvim_create_autocmd({ "BufWritePost" }, {
-                pattern = { "launch.json" },
-                callback = setupConfigs,
-              })
             end
           end)
 
