@@ -20,7 +20,7 @@ end
 local dap = require("dap")
 map("n", "<leader>dr", function()
   require("dap.ext.vscode").load_launchjs(".nvim/launch.json", { codelldb = { "rust", "c", "cpp" } })
-  dap.continue({ force = true })
+  dap.continue({ new = true })
 end, { desc = "Run" })
 
 --- BUFFERLINE ---
