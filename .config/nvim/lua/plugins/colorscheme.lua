@@ -7,13 +7,10 @@ return {
       colorscheme = "catppuccin",
     },
   },
-
   {
     "catppuccin/nvim",
     name = "catppuccin",
-    config = function(_, opts)
-      require("catppuccin").setup(opts)
-    end,
+    priority = 1000,
     opts = {
       flavour = "mocha", -- latte, frappe, macchiato, mocha
       background = { -- :h background
