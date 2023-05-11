@@ -1,10 +1,40 @@
 return {
   {
-    -- TODO: Make DAP UI stay up when program exits
+    "rcarriga/nvim-dap-ui",
+    config = function(_, opts)
+      local dap = require("dap")
+      local dapui = require("dapui")
+
+      dapui.setup(opts)
+
+      local didCrash = false
+      dap.listeners.after.event_initialized["dapui_config"] = function()
+        didCrash = false -- Reset whenever we start
+        dapui.open({})
+      end
+      dap.listeners.before.event_terminated["dapui_config"] = function()
+        -- If we crashed then we want to see the errors, so don't close
+        if not didCrash then
+          dapui.close({})
+        end
+      end
+      dap.listeners.before.event_exited["dapui_config"] = function(_, evt)
+        -- Set whether we crashed or not
+        didCrash = evt.exitCode ~= 0
+      end
+    end,
+  },
+  {
     -- TODO: Stop assembly buffers breaking everything
+    -- TODO: Stop DapUI closing when the program crashes (non-zero exit)
     "mfussenegger/nvim-dap",
     integration = {},
     config = function()
+      local dap = require("dap")
+
+      -- Options
+      dap.defaults.fallback.focus_terminal = true
+
       -- Signs
       local sign = vim.fn.sign_define
       sign("DapBreakpoint", { text = "⬤", texthl = "DapBreakpoint", linehl = "", numhl = "" })
