@@ -1,5 +1,4 @@
 -- https://github.com/appelgriebsch/Nv/blob/main/lua/plugins/extras/lang/rust.lua
--- TODO: Stop showing disassembly when terminating
 return {
   -- extend auto completion
   {

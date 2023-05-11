@@ -15,6 +15,8 @@ return {
     end,
   },
   {
+    -- NOTE: Oooh I can't wait for inline-virtual text
+    -- https://github.com/lvimuser/lsp-inlayhints.nvim/issues/46
     "lvimuser/lsp-inlayhints.nvim",
     event = "LspAttach",
     config = function(_, opts)
