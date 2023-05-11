@@ -18,7 +18,10 @@ end
 
 --- DAP ---
 local dap = require("dap")
-map("n", "<leader>dr", dap.continue, { desc = "Run" })
+map("n", "<leader>dr", function()
+  require("dap.ext.vscode").load_launchjs(".nvim/launch.json", { codelldb = { "rust", "c", "cpp" } })
+  dap.continue({ force = true })
+end, { desc = "Run" })
 
 --- BUFFERLINE ---
 -- <leader>bj to enter buffer picking mode

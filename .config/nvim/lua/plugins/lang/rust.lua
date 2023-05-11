@@ -53,53 +53,6 @@ return {
           local dap = require("dap")
           local mason_registry = require("mason-registry")
 
-          -- FIXME: This should be called whenever we launch a debug session, not just when attaching
-          -- or when launch.json is saved
-          local function setupConfigs()
-            -- TODO: Ask rust_analyzer what these configs (name, args, etc) should be, rather than using the workspaceFolderBasename
-            -- These commands come from the `experimental/runnables` LSP extension method, and will also include test targets for binaries and libraries
-            dap.configurations.rust = {
-              {
-                name = "Debug",
-                type = "codelldb",
-                request = "launch",
-                cwd = "${workspaceFolder}",
-                cargo = {
-                  -- NOTE: These are taken from VSCode's launch.json
-                  args = { "build", "--bin=${workspaceFolderBasename}", "--package=${workspaceFolderBasename}" },
-                  filter = { "name=${workspaceFolderBasename}", "kind=bin" },
-                },
-                stopOnEntry = false,
-                args = {},
-                env = {
-                  CARGO_MANIFEST_DIR = "${workspaceFolder}",
-                },
-                sourceLanguages = { "rust" },
-                initCommands = function()
-                  local rustc_sysroot = vim.fn.trim(vim.fn.system("rustc --print sysroot"))
-
-                  local script_import = 'command script import "' .. rustc_sysroot .. '/lib/rustlib/etc/lldb_lookup.py"'
-                  local commands_file = rustc_sysroot .. "/lib/rustlib/etc/lldb_commands"
-
-                  local commands = {}
-                  local file = io.open(commands_file, "r")
-                  if file then
-                    for line in file:lines() do
-                      table.insert(commands, line)
-                    end
-                    file:close()
-                  end
-                  table.insert(commands, 1, script_import)
-
-                  return commands
-                end,
-              },
-            }
-
-            -- Load from launch.json
-            require("dap.ext.vscode").load_launchjs(".nvim/launch.json", { codelldb = { "rust" } })
-          end
-
           require("lazyvim.util").on_attach(function(client, _)
             if client.name == "rust_analyzer" then
               vim.api.nvim_create_autocmd({ "BufWritePost", "BufEnter", "CursorHold", "InsertLeave" }, {
@@ -147,7 +100,45 @@ return {
             }
           end
 
-          setupConfigs()
+          -- TODO: Ask rust_analyzer what these configs (name, args, etc) should be, rather than using the workspaceFolderBasename
+          -- These commands come from the `experimental/runnables` LSP extension method, and will also include test targets for binaries and libraries
+          dap.configurations.rust = {
+            {
+              name = "Debug",
+              type = "codelldb",
+              request = "launch",
+              cwd = "${workspaceFolder}",
+              cargo = {
+                -- NOTE: These are taken from VSCode's launch.json
+                args = { "build", "--bin=${workspaceFolderBasename}", "--package=${workspaceFolderBasename}" },
+                filter = { "name=${workspaceFolderBasename}", "kind=bin" },
+              },
+              stopOnEntry = false,
+              args = {},
+              env = {
+                CARGO_MANIFEST_DIR = "${workspaceFolder}",
+              },
+              sourceLanguages = { "rust" },
+              initCommands = function()
+                local rustc_sysroot = vim.fn.trim(vim.fn.system("rustc --print sysroot"))
+
+                local script_import = 'command script import "' .. rustc_sysroot .. '/lib/rustlib/etc/lldb_lookup.py"'
+                local commands_file = rustc_sysroot .. "/lib/rustlib/etc/lldb_commands"
+
+                local commands = {}
+                local file = io.open(commands_file, "r")
+                if file then
+                  for line in file:lines() do
+                    table.insert(commands, line)
+                  end
+                  file:close()
+                end
+                table.insert(commands, 1, script_import)
+
+                return commands
+              end,
+            },
+          }
 
           return false -- make sure the base implementation calls rust_analyzer.setup
         end,
