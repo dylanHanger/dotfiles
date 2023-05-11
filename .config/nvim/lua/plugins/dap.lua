@@ -1,3 +1,5 @@
+-- TODO: Make DAP UI stay up when program exits
+-- TODO: Stop assembly buffers breaking everything
 return {
   {
     "mfussenegger/nvim-dap",

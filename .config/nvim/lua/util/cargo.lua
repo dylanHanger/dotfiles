@@ -1,142 +1,177 @@
--- NOTE: Most of this is taken from `rust-tools.dap`
+-- https://github.com/mfussenegger/nvim-dap/discussions/671
 local M = {}
 
-local rt = require("rust-tools")
-local util = require("util")
+local function parse_cargo_metadata(cargo_metadata)
+  -- Iterate backwards through the metadata list since the binary
+  -- we want will be near the end (usually second to last)
+  for i = 1, #cargo_metadata do
+    local json_table = cargo_metadata[#cargo_metadata + 1 - i]
 
-local function get_cargo_args_from_runnables_args(runnable_args)
-  local cargo_args = runnable_args.cargoArgs
+    -- Some metadata lines may be blank, skip those
+    if string.len(json_table) ~= 0 then
+      -- Each metadata line is a JSON table
+      -- parse it into a data structure we can work with
+      json_table = vim.fn.json_decode(json_table)
 
-  local message_json = "--message-format=json"
-  if not rt.utils.contains(cargo_args, message_json) then
-    table.insert(cargo_args, message_json)
-  end
-
-  for _, value in ipairs(runnable_args.cargoExtraArgs) do
-    if not rt.utils.contains(cargo_args, value) then
-      table.insert(cargo_args, value)
+      -- Our binary will be the compiler artifact with an executable defined
+      if json_table["reason"] == "compiler-artifact" and json_table["executable"] ~= vim.NIL then
+        return json_table["executable"]
+      end
     end
   end
 
-  return cargo_args
+  return nil
 end
 
-function M.build_and_run(args, callback)
-  if not pcall(require, "dap") then
-    util.scheduled_error("nvim-dap not found.")
-    return
+-- TODO: Cleanup and rewrite my own version of this
+function M.cargo_inspector(config)
+  local lazyutil = require("lazy.util")
+
+  local final_config = vim.deepcopy(config)
+
+  -- Create a buffer to receive compiler progress messages
+  local compiler_msg_buf = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_buf_set_option(compiler_msg_buf, "buftype", "nofile")
+
+  -- And a floating window in the corner to display them
+  -- TODO: Try use already existing lazyvim utils here
+  -- If a floating window doesn't look nice, use notify
+  local float = lazyutil.float({
+    buf = compiler_msg_buf,
+    size = { width = 0.6, height = 0.6 },
+    zindex = 1,
+  })
+
+  -- Let the user know what's going on
+  vim.fn.appendbufline(compiler_msg_buf, "$", "Compiling: ")
+  vim.fn.appendbufline(compiler_msg_buf, "$", final_config.name)
+  vim.fn.appendbufline(compiler_msg_buf, "$", string.rep("=", vim.api.nvim_win_get_width(float.win) - 1))
+
+  -- Instruct cargo to emit compiler metadata as JSON
+  local message_format = "--message-format=json"
+  if final_config.cargo.args ~= nil then
+    table.insert(final_config.cargo.args, message_format)
+  else
+    final_config.cargo.args = { message_format }
   end
 
-  if not pcall(require, "plenary.job") then
-    util.scheduled_error("plenary not found.")
-    return
+  -- Build final `cargo` command to be executed
+  local cargo_cmd = { "cargo" }
+  for _, value in pairs(final_config.cargo.args) do
+    table.insert(cargo_cmd, value)
   end
 
-  local Job = require("plenary.job")
+  -- Run `cargo`, retaining buffered `stdout` for later processing
+  -- and emitting compiler messages to a window
+  -- TODO: This might be a job for plenary?
+  local compiler_metadata = {}
+  local cargo_job = vim.fn.jobstart(cargo_cmd, {
+    clear_env = false,
+    env = final_config.cargo.env,
+    cwd = final_config.cwd,
 
-  local cargo_args = get_cargo_args_from_runnables_args(args)
+    -- Cargo emits compiler metadata to `stdout`
+    stdout_buffered = true,
+    on_stdout = function(_, data)
+      compiler_metadata = data
+    end,
 
-  vim.notify("Compiling a debug build for debugging. This might take some time...")
+    -- Cargo emits compiler messages to `stderr`
+    on_stderr = function(_, data)
+      local complete_line = ""
 
-  Job
-    :new({
-      command = "cargo",
-      args = cargo_args,
-      cwd = args.workspaceRoot,
-      on_exit = function(j, code)
-        if code and code > 0 then
-          util.scheduled_error("An error occurred while compiling. Please fix all compilation issues and try again.")
-          return
+      -- `data` might contain partial lines, glue data together until
+      -- the stream indicates the line is complete with an empty string
+      for _, partial_line in ipairs(data) do
+        if string.len(partial_line) ~= 0 then
+          complete_line = complete_line .. partial_line
         end
+      end
 
-        vim.schedule(function()
-          local executables = {}
+      if vim.api.nvim_buf_is_valid(compiler_msg_buf) then
+        vim.fn.appendbufline(compiler_msg_buf, "$", complete_line)
+        vim.api.nvim_win_set_cursor(float.win, { vim.api.nvim_buf_line_count(compiler_msg_buf), 1 })
+        vim.cmd("redraw")
+      end
+    end,
 
-          for _, value in pairs(j:result()) do
-            local artifact = vim.fn.json_decode(value)
+    on_exit = function(_, exit_code)
+      -- Cleanup the compile message window and buffer
+      if vim.api.nvim_win_is_valid(float.win) then
+        vim.api.nvim_win_close(float.win, true)
+      end
 
-            -- only process artifact if it's valid json object and it is a compiler artifact
-            if type(artifact) ~= "table" or artifact.reason ~= "compiler-artifact" then
-              goto loop_end
-            end
+      if vim.api.nvim_buf_is_valid(compiler_msg_buf) then
+        vim.api.nvim_buf_delete(compiler_msg_buf, { force = true })
+      end
 
-            local is_binary = rt.utils.contains(artifact.target.crate_types, "bin")
-            local is_build_script = rt.utils.contains(artifact.target.kind, "custom-build")
-            local is_test = ((artifact.profile.test == true) and (artifact.executable ~= nil))
-              or rt.utils.contains(artifact.target.kind, "test")
-            -- only add executable to the list if we want a binary debug and it is a binary
-            -- or if we want a test debug and it is a test
-            if
-              (cargo_args[1] == "build" and is_binary and not is_build_script)
-              or (cargo_args[1] == "test" and is_test)
-            then
-              table.insert(executables, artifact.executable)
-            end
+      -- If compiling succeeded, send the compile metadata off for processing
+      -- and add the resulting executable name to the `program` field of the final config
+      if exit_code == 0 then
+        local executable_name = parse_cargo_metadata(compiler_metadata)
+        if executable_name ~= nil and final_config.program == nil then
+          final_config.program = executable_name
+        else
+          vim.notify(
+            "Cargo could not find an executable for debug configuration:\n\n\t" .. final_config.name,
+            vim.log.levels.ERROR
+          )
+        end
+      else
+        vim.notify("Cargo failed to compile debug configuration:\n\n\t" .. final_config.name, vim.log.levels.ERROR)
+      end
+    end,
+  })
 
-            ::loop_end::
-          end
+  -- Get the rust compiler's commit hash for the source map
+  local rust_hash = ""
+  local rust_hash_stdout = {}
+  local rust_hash_job = vim.fn.jobstart({ "rustc", "--version", "--verbose" }, {
+    clear_env = false,
+    stdout_buffered = true,
+    on_stdout = function(_, data)
+      rust_hash_stdout = data
+    end,
+    on_exit = function()
+      for _, line in pairs(rust_hash_stdout) do
+        local start, finish = string.find(line, "commit-hash: ", 1, true)
 
-          -- only 1 executable is allowed for debugging - error out if zero or many were found
-          if #executables <= 0 then
-            util.scheduled_error("No compilation artifacts found.")
-            return
-          end
-          if #executables > 1 then
-            util.scheduled_error("Multiple compilation artifacts are not supported.")
-            return
-          end
+        if start ~= nil then
+          rust_hash = string.sub(line, finish + 1)
+        end
+      end
+    end,
+  })
 
-          -- Call our function with the result of the compilation
-          callback(executables[1])
-        end)
-      end,
-    })
-    :start()
-end
+  -- Get the location of the rust toolchain's source code for the source map
+  local rust_source_path = ""
+  local rust_source_job = vim.fn.jobstart({ "rustc", "--print", "sysroot" }, {
+    clear_env = false,
+    stdout_buffered = true,
+    on_stdout = function(_, data)
+      rust_source_path = data[1]
+    end,
+  })
 
-local function get_params()
-  return {
-    textDocument = vim.lsp.util.make_text_document_params(),
-    position = nil, -- get em all
-  }
-end
+  -- Wait until compiling and parsing are done
+  -- FIXME: This blocks the UI
+  vim.fn.jobwait({ cargo_job, rust_hash_job, rust_source_job })
 
-local function is_valid_test(args)
-  local is_not_cargo_check = args.cargoArgs[1] ~= "check"
-  return is_not_cargo_check
-end
+  -- Enable visualisation of build in rust datatypes
+  final_config.sourceLanguages = { "rust" }
 
-local function sanitize_results_for_debugging(result)
-  local ret = {}
-
-  ret = vim.tbl_filter(function(value)
-    return is_valid_test(value.args)
-  end, result)
-
-  for _, value in ipairs(ret) do
-    rt.utils.sanitize_command_for_debugging(value.args.cargoArgs)
+  -- Build sourcemap to rust's source code so we can step into stdlib
+  rust_hash = "/rustc/" .. rust_hash .. "/"
+  rust_source_path = rust_source_path .. "/lib/rustlib/src/rust/"
+  if final_config.sourceMap == nil then
+    final_config["sourceMap"] = {}
   end
+  final_config.sourceMap[rust_hash] = rust_source_path
 
-  return ret
-end
+  -- Cargo section is no longer needed
+  final_config.cargo = nil
 
-local function handler(callback, _, result)
-  -- TODO: Handle the results of the LSP request
-  if result == nil then
-    return
-  end
-  result = sanitize_results_for_debugging(result)
-  callback(result)
-end
-
-function M.get_args(command, callback)
-  local _callback = function(results)
-    -- TODO: Find the requested result
-    local result = results[1].args
-    callback(result)
-  end
-
-  rt.utils.request(0, "experimental/runnables", get_params(), util.partial(handler, _callback))
+  return final_config
 end
 
 return M

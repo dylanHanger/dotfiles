@@ -48,7 +48,7 @@ return {
       custom_highlights = function(colors)
         local dark_yellow = cutils.darken(colors.yellow, 75)
         return {
-          InlayHint = { fg = colors.surface1 },
+          LspInlayHint = { fg = colors.surface1 },
           DapStoppedCurrentLine = { bg = dark_yellow },
         }
       end,
