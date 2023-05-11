@@ -34,8 +34,8 @@ function M.cargo_inspector(config)
   vim.api.nvim_buf_set_option(compiler_msg_buf, "buftype", "nofile")
 
   -- And a floating window in the corner to display them
-  -- TODO: Try use already existing lazyvim utils here
-  -- If a floating window doesn't look nice, use notify
+  -- TODO: Try make this look nicer with notify instead of a floating window
+  -- Or alternatively, in the console used by DAP UI
   local float = lazyutil.float({
     buf = compiler_msg_buf,
     size = { width = 0.6, height = 0.6 },
