@@ -43,6 +43,22 @@ return {
     end,
   },
 
+  -- correctly setup neotest adapter
+  -- NOTE: neotest-rust requires cargo-nextest.
+  {
+    "nvim-neotest/neotest",
+    dependencies = {
+      "rouge8/neotest-rust",
+    },
+    opts = function(_, opts)
+      vim.list_extend(opts.adapters, {
+        require("neotest-rust")({
+          dap = { justMyCode = true },
+        }),
+      })
+    end,
+  },
+
   -- correctly setup lspconfig
   {
     "neovim/nvim-lspconfig",
@@ -55,6 +71,11 @@ return {
 
           require("lazyvim.util").on_attach(function(client, _)
             if client.name == "rust_analyzer" then
+              -- TODO: Implement missing rust-tools.nvim features:
+              -- hover_actions: LSP enhanced hover, with "Go To XYZ" actions, etc
+              -- reload_workspace_from_cargo_toml: reloads the rust workspace when you write to Cargo.toml
+              -- hover_range: Display the type of the selected range in visual mode
+              -- runnables: capable of running individual tests (see nvim-neotest for this capability)
               vim.api.nvim_create_autocmd({ "BufWritePost", "BufEnter", "CursorHold", "InsertLeave" }, {
                 pattern = { "*.rs" },
                 callback = function()

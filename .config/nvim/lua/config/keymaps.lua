@@ -4,6 +4,7 @@
 
 local lazyutil = require("lazyvim.util")
 local util = require("util")
+local whichkey = require("which-key")
 
 local function map(mode, lhs, rhs, opts)
   local keys = require("lazy.core.handler").handlers.keys
@@ -22,6 +23,46 @@ map("n", "<leader>dr", function()
   require("dap.ext.vscode").load_launchjs(".nvim/launch.json", { codelldb = { "rust", "c", "cpp" } })
   dap.continue({ new = true })
 end, { desc = "Run" })
+map("n", "<leader>ds", function()
+  dap.terminate()
+end, { desc = "Stop" })
+
+-- NEOTEST
+local neotest = require("neotest")
+-- <leader>dtt to run the nearest test
+map("n", "<leader>dtt", function()
+  neotest.run.run()
+end, { desc = "Run this test" })
+-- <leader>dtT to run all tests in a file
+map("n", "<leader>dtT", function()
+  neotest.run.run(vim.fn.expand("%"))
+end, { desc = "Run all tests (file)" })
+-- <leader>dts to open summary and output
+map("n", "<leader>dts", function()
+  neotest.summary.toggle()
+  neotest.output_panel.toggle()
+end, { desc = "Toggle test summary" })
+
+-- TODO: <leader>ft to find tests with telescope
+-- map("n", "<leader>ft", function()
+--   local adapters = neotest.run.adapters()
+--   local positions = {}
+--   for adapter in adapters do
+--     local tree = neotest.state.positions(adapter)
+--     if tree ~= nil then
+--       vim.list_extend(positions, tree:to_list())
+--     end
+--   end
+-- end, { desc = "Find tests" })
+
+-- ]f -> next failing test
+map("n", "]f", function()
+  neotest.jump.next({ status = "failed" })
+end, { desc = "Next failing test" })
+-- [f -> prev failing test
+map("n", "[f", function()
+  neotest.jump.prev({ status = "failed" })
+end, { desc = "Previous failing test" })
 
 --- BUFFERLINE ---
 -- <leader>bj to enter buffer picking mode
