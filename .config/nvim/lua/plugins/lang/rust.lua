@@ -75,7 +75,6 @@ return {
               -- hover_actions: LSP enhanced hover, with "Go To XYZ" actions, etc
               -- reload_workspace_from_cargo_toml: reloads the rust workspace when you write to Cargo.toml
               -- hover_range: Display the type of the selected range in visual mode
-              -- runnables: capable of running individual tests (see nvim-neotest for this capability)
               vim.api.nvim_create_autocmd({ "BufWritePost", "BufEnter", "CursorHold", "InsertLeave" }, {
                 pattern = { "*.rs" },
                 callback = function()

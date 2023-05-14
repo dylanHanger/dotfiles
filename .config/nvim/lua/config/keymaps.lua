@@ -44,16 +44,63 @@ map("n", "<leader>dts", function()
 end, { desc = "Toggle test summary" })
 
 -- TODO: <leader>ft to find tests with telescope
--- map("n", "<leader>ft", function()
---   local adapters = neotest.run.adapters()
---   local positions = {}
---   for adapter in adapters do
---     local tree = neotest.state.positions(adapter)
---     if tree ~= nil then
---       vim.list_extend(positions, tree:to_list())
---     end
---   end
--- end, { desc = "Find tests" })
+map("n", "<leader>ft", function()
+  local pickers = require("telescope.pickers")
+  local finders = require("telescope.finders")
+  local conf = require("telescope.config").values
+  local actions = require("telescope.actions")
+  local action_state = require("telescope.actions.state")
+
+  local tests = function(opts)
+    local adapters = neotest.run.adapters()
+    local tests = {}
+    for _, adapter in ipairs(adapters) do
+      local tree = neotest.state.positions(adapter)
+      if tree ~= nil then
+        for _, node in tree:iter() do
+          if node.type == "test" then
+            vim.list_extend(tests, { node })
+          end
+        end
+      end
+    end
+
+    pickers
+      .new(opts or {}, {
+        prompt_title = "Tests",
+        finder = finders.new_table({
+          results = tests,
+          entry_maker = function(entry)
+            return {
+              value = entry,
+              -- TODO: Add a previewer
+              -- TODO: Improve display - show test status
+              display = entry.name,
+              ordinal = entry.id,
+            }
+          end,
+        }),
+        sorter = conf.generic_sorter(opts),
+        attach_mappings = function(prompt_bufnr, telescope_map)
+          actions.select_default:replace(function()
+            actions.close(prompt_bufnr)
+            local selection = action_state.get_selected_entry()
+            local test = selection.value
+            -- FIXME: This will reopen the file if it is already open
+            vim.cmd("silent! edit " .. test.file)
+            -- get the current window handle
+            local win = vim.api.nvim_get_current_win()
+            -- set the cursor position to line 10, column 5
+            vim.api.nvim_win_set_cursor(win, { test.range[1] + 1, test.range[2] + 1 })
+          end)
+          return true
+        end,
+      })
+      :find()
+  end
+
+  tests()
+end, { desc = "Find tests" })
 
 -- ]f -> next failing test
 map("n", "]f", function()

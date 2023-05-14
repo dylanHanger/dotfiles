@@ -27,7 +27,6 @@ return {
   },
   {
     -- TODO: Stop assembly buffers breaking everything
-    -- TODO: Stop DapUI closing when the program crashes (non-zero exit)
     "mfussenegger/nvim-dap",
     integration = {},
     config = function()
