@@ -1,4 +1,15 @@
+-- TODO: Setup for more environments
+-- Obsidian.md - epwalsh/obsidian.nvim
+-- LaTeX
+--
 return {
+  -- Mason
+  {
+    "williamboman/mason.nvim",
+    opts = {
+      PATH = "append",
+    },
+  },
   -- DAP
   {
     "rcarriga/nvim-dap-ui",
@@ -27,6 +38,7 @@ return {
   },
   {
     -- TODO: Stop assembly buffers breaking everything
+    -- TODO: Stop DapUI closing when the program crashes (non-zero exit)
     "mfussenegger/nvim-dap",
     integration = {},
     config = function()
@@ -246,5 +258,8 @@ return {
 
   -- Specific languages
   { import = "lazyvim.plugins.extras.dap.nlua" },
+  -- TODO: Would be super nice to auto-include all these
   { import = "plugins.lang.rust" },
+  { import = "plugins.lang.python" },
+  { import = "plugins.lang.web" },
 }

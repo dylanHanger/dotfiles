@@ -16,11 +16,13 @@ return {
 
   -- Preview colors
   {
-    "norcalli/nvim-colorizer.lua",
+    "brenoprata10/nvim-highlight-colors",
     event = "BufReadPost",
     opts = {
-      -- Attach to all buffers
-      "*",
+      render = "background",
+      enable_named_colors = true,
+      enable_tailwind = true,
+      custom_colors = {},
     },
   },
 

@@ -18,6 +18,7 @@ return {
         dark = "mocha",
       },
       transparent_background = false,
+      -- TODO: I actually would like this, but not in the dashboard
       show_end_of_buffer = false, -- show the '~' characters after the end of buffers
       term_colors = false,
       dim_inactive = {
@@ -50,6 +51,7 @@ return {
         }
       end,
       integrations = {
+        alpha = true,
         cmp = true,
         gitsigns = true,
         illuminate = true,

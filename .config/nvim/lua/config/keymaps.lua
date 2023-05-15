@@ -43,7 +43,7 @@ map("n", "<leader>dts", function()
   neotest.output_panel.toggle()
 end, { desc = "Toggle test summary" })
 
--- TODO: <leader>ft to find tests with telescope
+--[[
 map("n", "<leader>ft", function()
   local pickers = require("telescope.pickers")
   local finders = require("telescope.finders")
@@ -101,6 +101,7 @@ map("n", "<leader>ft", function()
 
   tests()
 end, { desc = "Find tests" })
+--]]
 
 -- ]f -> next failing test
 map("n", "]f", function()
@@ -156,3 +157,11 @@ map("n", "<leader>gg", function()
     lazyutil.float_term({ "lazygit" }, { esc_esc = false })
   end
 end, { desc = "Lazygit (cwd)" })
+
+--- LIVESERVER ---
+map("n", "<leader>dh", function()
+  require("live-server").start()
+end, { desc = "Start live server" })
+map("n", "<leader>dH", function()
+  require("live-server").stop()
+end, { desc = "Stop live server" })
