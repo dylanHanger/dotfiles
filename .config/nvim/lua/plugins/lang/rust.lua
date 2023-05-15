@@ -62,28 +62,53 @@ return {
   -- correctly setup lspconfig
   {
     "neovim/nvim-lspconfig",
+    dependencies = { "simrat39/rust-tools.nvim" },
     opts = {
       -- make sure mason installs the server
       setup = {
-        rust_analyzer = function(_, _)
+        rust_analyzer = function(_, opts)
           local dap = require("dap")
           local mason_registry = require("mason-registry")
+          local rust_tools = require("rust-tools")
 
-          require("lazyvim.util").on_attach(function(client, _)
+          require("lazyvim.util").on_attach(function(client, buffer)
             if client.name == "rust_analyzer" then
-              -- TODO: Implement missing rust-tools.nvim features:
-              -- hover_actions: LSP enhanced hover, with "Go To XYZ" actions, etc
-              -- reload_workspace_from_cargo_toml: reloads the rust workspace when you write to Cargo.toml
-              -- hover_range: Display the type of the selected range in visual mode
-              vim.api.nvim_create_autocmd({ "BufWritePost", "BufEnter", "CursorHold", "InsertLeave" }, {
-                pattern = { "*.rs" },
-                callback = function()
-                  local _, _ = pcall(vim.lsp.codelens.refresh)
-                end,
-              })
+              vim.keymap.set("n", "K", "<CMD>RustHoverActions<CR>", { buffer = buffer })
+              -- NOTE: This is broken in rust-tools
+              -- vim.keymap.set("v", "K", "<CMD>RustHoverRange<CR>", { buffer = buffer })
+              -- vim.keymap.set("n", "J", "<CMD>RustJoinLines<CR>", { buffer = buffer })
             end
           end)
 
+          local rust_tools_opts = vim.tbl_deep_extend("force", opts, {
+            tools = {
+              hover_actions = {
+                auto_focus = false,
+                border = "none",
+              },
+              inlay_hints = {
+                auto = false, -- Handled by inlay-hints
+              },
+            },
+            server = {
+              settings = {
+                ["rust-analyzer"] = {
+                  cargo = {
+                    features = "all",
+                  },
+                  -- Add clippy lints for Rust.
+                  checkOnSave = true,
+                  check = {
+                    command = "clippy",
+                    features = "all",
+                  },
+                  procMacro = {
+                    enable = true,
+                  },
+                },
+              },
+            },
+          })
           if mason_registry.has_package("codelldb") then
             local codelldb = mason_registry.get_package("codelldb")
             local extension_path = codelldb:get_install_path() .. "/extension/"
@@ -100,7 +125,7 @@ return {
               liblldb_path = liblldb_path .. (this_os == "Linux" and ".so" or ".dylib")
             end
 
-            dap.adapters.codelldb = {
+            adapter = {
               type = "server",
               port = "${port}",
               host = "127.0.0.1",
@@ -114,6 +139,8 @@ return {
                 end
               end,
             }
+            dap.adapters.codelldb = adapter
+            rust_tools_opts.dap = { adapter = adapter }
           end
 
           -- TODO: Ask rust_analyzer what these configs (name, args, etc) should be, rather than using the workspaceFolderBasename
@@ -156,7 +183,8 @@ return {
             },
           }
 
-          return false -- make sure the base implementation calls rust_analyzer.setup
+          rust_tools.setup(rust_tools_opts)
+          return true
         end,
 
         taplo = function(_, _)
