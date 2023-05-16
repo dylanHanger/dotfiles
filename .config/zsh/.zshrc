@@ -41,3 +41,5 @@ export ARCHFLAGS="-arch x86_64"
 
 # chpwd hooks
 export chpwd_functions
+
+export PATH="$XDG_BIN_HOME:$PATH"

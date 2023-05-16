@@ -11,7 +11,7 @@ return {
   {
     "williamboman/mason.nvim",
     opts = function(_, opts)
-      vim.list_extend(opts.ensure_installed, { "pyright", "black", "isort", "flake8" })
+      vim.list_extend(opts.ensure_installed, { "pyright", "black", "isort", "ruff-lsp" })
     end,
   },
 
@@ -25,8 +25,7 @@ return {
   {
     "mfussenegger/nvim-dap-python",
     config = function(_, _)
-      -- FIXME: Path to python with DebugPy installed
-      -- I think this should be using the Mason path
+      -- Path to python with DebugPy installed
       require("dap-python").setup("/usr/bin/python")
     end,
   },
@@ -46,13 +45,58 @@ return {
     end,
   },
 
+  -- null-ls custom config.
+  {
+    "jose-elias-alvarez/null-ls.nvim",
+    opts = function(_, opts)
+      local nls = require("null-ls")
+      local nls_formatting = nls.builtins.formatting
+      local formatting = {
+        -- Formatters
+        nls_formatting.isort.with({ filetypes = { "python" }, command = "isort" }),
+        nls_formatting.black.with({ filetypes = { "python" }, command = "black" }),
+      }
+      if type(opts.sources) == "table" then
+        opts.sources = vim.list_extend(opts.sources, formatting)
+      end
+      opts.debug = true
+    end,
+  },
+
   -- correctly setup lspconfig
   {
     "neovim/nvim-lspconfig",
     opts = {
-      -- make sure mason installs the server
-      setup = {
-        -- TODO: Keybindings and stuff I suppose?
+      ---@type lspconfig.options
+      servers = {
+        pyright = {
+          handlers = {
+            ["textDocument/publishDiagnostics"] = function() end,
+          },
+          on_attach = function(client, _)
+            -- Defer to Ruff for code actions and linting
+            client.server_capabilities.codeActionProvider = false
+            client.server_capabilities.diagnosticProvider = false
+          end,
+          settings = {
+            pyright = {
+              disableOrganizeImports = true,
+            },
+            python = {
+              analysis = {
+                autoSearchPaths = true,
+                typeCheckingMode = "basic",
+                useLibraryCodeForTypes = true,
+              },
+            },
+          },
+        },
+        ruff_lsp = {
+          on_attach = function(client, _)
+            -- Defer to PyRight for hover
+            client.server_capabilities.hoverProvider = false
+          end,
+        },
       },
     },
   },
