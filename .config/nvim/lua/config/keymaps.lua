@@ -2,6 +2,8 @@
 -- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
 -- Add any additional keymaps here
 
+-- TODO: ctrl+/ to toggle comments in insert mode
+
 local lazyutil = require("lazyvim.util")
 local util = require("util")
 local whichkey = require("which-key")

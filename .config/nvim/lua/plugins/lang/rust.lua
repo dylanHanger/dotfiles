@@ -1,4 +1,6 @@
 -- https://github.com/appelgriebsch/Nv/blob/main/lua/plugins/extras/lang/rust.lua
+-- TODO: Make the compilation terminal when debugging nicer: colors, borders, not centered, etc
+-- FIXME: Debugging does not work with dynamic linking, probably related to cargo_inspector
 return {
   -- extend auto completion
   {
@@ -125,7 +127,7 @@ return {
               liblldb_path = liblldb_path .. (this_os == "Linux" and ".so" or ".dylib")
             end
 
-            adapter = {
+            local adapter = {
               type = "server",
               port = "${port}",
               host = "127.0.0.1",
@@ -159,6 +161,7 @@ return {
               stopOnEntry = false,
               args = {},
               env = {
+                RUST_BACKTRACE = "full",
                 CARGO_MANIFEST_DIR = "${workspaceFolder}",
               },
               sourceLanguages = { "rust" },
