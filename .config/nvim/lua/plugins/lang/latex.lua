@@ -46,16 +46,74 @@ return {
   -- correctly setup lspconfig
   {
     "neovim/nvim-lspconfig",
+    dependencies = {
+      {
+        "f3fora/nvim-texlabconfig",
+        ft = { "tex", "bib" },
+        -- run = 'go build -o ~/.bin/' if e.g. ~/.bin/ is in $PATH
+        build = "go build",
+        opts = {
+          cache_activate = true,
+          cache_filetypes = { "tex", "bib" },
+          cache_root = vim.fn.stdpath("cache"),
+          reverse_search_start_cmd = function()
+            return true
+          end,
+          reverse_search_edit_cmd = vim.cmd.edit,
+          reverse_search_end_cmd = function()
+            return true
+          end,
+          file_permission_mode = 438,
+        },
+      },
+    },
     opts = {
+      ---@type table<string, fun(server:string, opts:_.lspconfig.options):boolean?>
       setup = {
         texlab = function(_, opts)
-          -- TODO: Setup build request and forward search
+          local nvim_texlabconfig = require("texlabconfig").project_dir() .. "/nvim_texlabconfig"
+
+          -- TODO: Find something that works nicely with WSL
+          local executable = "sioyek"
+          local args = {
+            "--reuse-window",
+            "--inverse-search",
+            nvim_texlabconfig .. [[ -file %1 -line %2 -server ]] .. vim.v.servername,
+            "--forward-search-file",
+            "%f",
+            "--forward-search-line",
+            "%l",
+            "%p",
+          }
+
           require("lazyvim.util").on_attach(function(client, buffer)
-            vim.keymap.set("n", "<leader>cb", function()
-              client.request("workspace/executeCommand", {})
-            end, { desc = "Build" })
+            if client.name == "texlab" then
+              vim.keymap.set("n", "<leader>cb", function()
+                local params = vim.lsp.util.make_position_params()
+                client.request("textDocument/build", params, nil)
+              end, { desc = "Build", buffer = buffer })
+              vim.keymap.set("n", "gp", function()
+                local params = vim.lsp.util.make_position_params()
+                client.request("textDocument/forwardSearch", params, nil)
+              end, { desc = "Forward search", buffer = buffer })
+            end
           end)
-          return false
+
+          require("lspconfig").texlab.setup({
+            settings = {
+              texlab = {
+                build = {
+                  onSave = true,
+                  forwardSearchAfter = true,
+                },
+                forwardSearch = {
+                  executable = executable,
+                  args = args,
+                },
+              },
+            },
+          })
+          return true
         end,
       },
     },
