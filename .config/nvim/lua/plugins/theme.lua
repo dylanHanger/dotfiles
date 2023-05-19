@@ -100,11 +100,13 @@ return {
     end,
   },
 
+  -- TODO: Configure winbar
   {
     "nvim-lualine/lualine.nvim",
     after = "catppuccin",
     opts = function(_, opts)
       opts.options = {
+        globalstatus = true,
         theme = "catppuccin",
       }
     end,

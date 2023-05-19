@@ -90,11 +90,11 @@ return {
             if client.name == "texlab" then
               vim.keymap.set("n", "<leader>cb", function()
                 local params = vim.lsp.util.make_position_params()
-                client.request("textDocument/build", params, nil)
+                client.request("textDocument/build", params, function() end)
               end, { desc = "Build", buffer = buffer })
               vim.keymap.set("n", "gp", function()
                 local params = vim.lsp.util.make_position_params()
-                client.request("textDocument/forwardSearch", params, nil)
+                client.request("textDocument/forwardSearch", params, function() end)
               end, { desc = "Forward search", buffer = buffer })
             end
           end)

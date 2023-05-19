@@ -10,6 +10,16 @@ return {
       local cmp = require("cmp")
       cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
 
+      -- TODO: Any extra rules I want here
+      --https://github.com/windwp/nvim-autopairs#treesitter
+      vim.tbl_deep_extend("force", opts, {
+        check_ts = true,
+        ts_config = {
+          lua = { "string" }, -- it will not add pair on that treesitter node
+          javascript = { "template_string" },
+        },
+      })
+
       require("nvim-autopairs").setup(opts)
     end,
   },

@@ -5,3 +5,7 @@ if vim.g.vscode then
 else
   require("config.lazy")
 end
+
+-- TODO: Get some more features
+-- Dial.nvim - Enhanced incrementing/decrementing
+-- Chrome Devtools
