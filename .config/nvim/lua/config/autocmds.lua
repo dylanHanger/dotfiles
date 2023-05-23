@@ -18,3 +18,7 @@ autocmd("FileType", {
     setlocal breakindent
   ]],
 })
+
+-- FIXME: I don't want to have to do this in an autocmd like this, why is it being overwritten?
+-- fix format options
+autocmd("FileType", { command = [[set formatoptions-=o]] })
