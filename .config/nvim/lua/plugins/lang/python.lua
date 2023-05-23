@@ -36,13 +36,13 @@ return {
     dependencies = {
       "nvim-neotest/neotest-python",
     },
-    opts = function(_, opts)
-      vim.list_extend(opts.adapters, {
-        require("neotest-python")({
-          dap = { justMyCode = false },
-        }),
-      })
-    end,
+    opts = {
+      adapters = {
+        ["neotest-python"] = {
+          dap = { justMyCode = true },
+        },
+      },
+    },
   },
 
   -- null-ls custom config.

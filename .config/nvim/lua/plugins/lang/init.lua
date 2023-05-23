@@ -7,6 +7,7 @@ return {
 
   -- Specific languages
   { import = "lazyvim.plugins.extras.dap.nlua" },
+  { import = "lazyvim.plugins.extras.lang.json" },
 
   -- TODO: Would be super nice to auto-include all these
   { import = "plugins.lang.rust" },
@@ -14,6 +15,66 @@ return {
   { import = "plugins.lang.web" },
   { import = "plugins.lang.csharp" },
   { import = "plugins.lang.latex" },
+
+  {
+    "nvim-neotest/neotest",
+    opts = {
+      icons = {
+        child_indent = "│",
+        child_prefix = "├",
+        collapsed = "─",
+        expanded = "┐",
+        failed = "",
+        final_child_indent = " ",
+        final_child_prefix = "└",
+        non_collapsible = "─",
+        passed = "",
+        running = "",
+        running_animated = {
+          "⠋",
+          "⠙",
+          "⠹",
+          "⠸",
+          "⠼",
+          "⠴",
+          "⠦",
+          "⠧",
+          "⠇",
+          "⠏",
+        },
+      },
+    },
+    config = function(_, opts)
+      local neotest_ns = vim.api.nvim_create_namespace("neotest")
+      vim.diagnostic.config({
+        virtual_text = {
+          format = function(diagnostic)
+            -- Replace newline and tab characters with space for more compact diagnostics
+            local message = diagnostic.message:gsub("\n", " "):gsub("\t", " "):gsub("%s+", " "):gsub("^%s+", "")
+            return message
+          end,
+        },
+      }, neotest_ns)
+
+      if opts.adapters then
+        local adapters = {}
+        for name, config in pairs(opts.adapters or {}) do
+          if type(name) == "number" then
+            adapters[#adapters + 1] = config
+          elseif config ~= false then
+            local adapter = require(name)
+            if type(config) == "table" and not vim.tbl_isempty(config) then
+              adapter = adapter(config)
+            end
+            adapters[#adapters + 1] = adapter
+          end
+        end
+        opts.adapters = adapters
+      end
+
+      require("neotest").setup(opts)
+    end,
+  },
 
   -- Mason
   {
@@ -72,154 +133,154 @@ return {
   -- Testing
   -- TODO: Make sure debugging tests works. Setting strategy="dap" causes tests to not run
   -- TODO: Setup catppuccin colors here
-  {
-    "nvim-neotest/neotest",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      "nvim-treesitter/nvim-treesitter",
-      "antoinemadec/FixCursorHold.nvim",
-      -- which key integration
-      {
-        "folke/which-key.nvim",
-        opts = {
-          defaults = {
-            ["<leader>dt"] = { name = "+tests" },
-          },
-        },
-      },
-      -- TODO: Disable mini.indentscope in the neotest buffers
-    },
-    opts = {
-      adapters = {},
-      benchmark = {
-        enabled = true,
-      },
-      consumers = {},
-      default_strategy = "integrated",
-      diagnostic = {
-        enabled = true,
-        severity = 1,
-      },
-      discovery = {
-        concurrent = 0,
-        enabled = true,
-      },
-      floating = {
-        border = "rounded",
-        max_height = 0.6,
-        max_width = 0.6,
-        options = {},
-      },
-      highlights = {
-        adapter_name = "NeotestAdapterName",
-        border = "NeotestBorder",
-        dir = "NeotestDir",
-        expand_marker = "NeotestExpandMarker",
-        failed = "NeotestFailed",
-        file = "NeotestFile",
-        focused = "NeotestFocused",
-        indent = "NeotestIndent",
-        marked = "NeotestMarked",
-        namespace = "NeotestNamespace",
-        passed = "NeotestPassed",
-        running = "NeotestRunning",
-        select_win = "NeotestWinSelect",
-        skipped = "NeotestSkipped",
-        target = "NeotestTarget",
-        test = "NeotestTest",
-        unknown = "NeotestUnknown",
-      },
-      icons = {
-        child_indent = "│",
-        child_prefix = "├",
-        collapsed = "─",
-        expanded = "╮",
-        failed = "",
-        final_child_indent = " ",
-        final_child_prefix = "╰",
-        non_collapsible = "─",
-        passed = "",
-        running = "",
-        running_animated = {
-          "⠋",
-          "⠙",
-          "⠹",
-          "⠸",
-          "⠼",
-          "⠴",
-          "⠦",
-          "⠧",
-          "⠇",
-          "⠏",
-        },
-        skipped = "",
-        unknown = "",
-      },
-      jump = {
-        enabled = true,
-      },
-      log_level = 3,
-      output = {
-        enabled = true,
-        open_on_run = "short",
-      },
-      output_panel = {
-        enabled = true,
-        open = "botright split | resize 15",
-      },
-      projects = {},
-      quickfix = {
-        enabled = true,
-        open = true,
-      },
-      run = {
-        enabled = true,
-      },
-      running = {
-        concurrent = true,
-      },
-      state = {
-        enabled = true,
-      },
-      status = {
-        enabled = true,
-        signs = true,
-        virtual_text = false,
-      },
-      strategies = {
-        integrated = {
-          height = 40,
-          width = 120,
-        },
-      },
-      summary = {
-        animated = true,
-        enabled = true,
-        expand_errors = true,
-        follow = true,
-        mappings = {
-          attach = "a",
-          clear_marked = "M",
-          clear_target = "T",
-          debug = "d",
-          debug_marked = "D",
-          expand = { "<CR>", "<2-LeftMouse>" },
-          expand_all = "e",
-          jumpto = "i",
-          mark = "m",
-          next_failed = "J",
-          output = "o",
-          prev_failed = "K",
-          run = "r",
-          run_marked = "R",
-          short = "O",
-          stop = "u",
-          target = "t",
-        },
-        open = "botright vsplit | vertical resize 50",
-      },
-    },
-  },
+  -- {
+  --   "nvim-neotest/neotest",
+  --   dependencies = {
+  --     "nvim-lua/plenary.nvim",
+  --     "nvim-treesitter/nvim-treesitter",
+  --     "antoinemadec/FixCursorHold.nvim",
+  --     -- which key integration
+  --     {
+  --       "folke/which-key.nvim",
+  --       opts = {
+  --         defaults = {
+  --           ["<leader>dt"] = { name = "+tests" },
+  --         },
+  --       },
+  --     },
+  --     -- TODO: Disable mini.indentscope in the neotest buffers
+  --   },
+  --   opts = {
+  --     adapters = {},
+  --     benchmark = {
+  --       enabled = true,
+  --     },
+  --     consumers = {},
+  --     default_strategy = "integrated",
+  --     diagnostic = {
+  --       enabled = true,
+  --       severity = 1,
+  --     },
+  --     discovery = {
+  --       concurrent = 0,
+  --       enabled = true,
+  --     },
+  --     floating = {
+  --       border = "rounded",
+  --       max_height = 0.6,
+  --       max_width = 0.6,
+  --       options = {},
+  --     },
+  --     highlights = {
+  --       adapter_name = "NeotestAdapterName",
+  --       border = "NeotestBorder",
+  --       dir = "NeotestDir",
+  --       expand_marker = "NeotestExpandMarker",
+  --       failed = "NeotestFailed",
+  --       file = "NeotestFile",
+  --       focused = "NeotestFocused",
+  --       indent = "NeotestIndent",
+  --       marked = "NeotestMarked",
+  --       namespace = "NeotestNamespace",
+  --       passed = "NeotestPassed",
+  --       running = "NeotestRunning",
+  --       select_win = "NeotestWinSelect",
+  --       skipped = "NeotestSkipped",
+  --       target = "NeotestTarget",
+  --       test = "NeotestTest",
+  --       unknown = "NeotestUnknown",
+  --     },
+  --     icons = {
+  --       child_indent = "│",
+  --       child_prefix = "├",
+  --       collapsed = "─",
+  --       expanded = "╮",
+  --       failed = "",
+  --       final_child_indent = " ",
+  --       final_child_prefix = "╰",
+  --       non_collapsible = "─",
+  --       passed = "",
+  --       running = "",
+  --       running_animated = {
+  --         "⠋",
+  --         "⠙",
+  --         "⠹",
+  --         "⠸",
+  --         "⠼",
+  --         "⠴",
+  --         "⠦",
+  --         "⠧",
+  --         "⠇",
+  --         "⠏",
+  --       },
+  --       skipped = "",
+  --       unknown = "",
+  --     },
+  --     jump = {
+  --       enabled = true,
+  --     },
+  --     log_level = 3,
+  --     output = {
+  --       enabled = true,
+  --       open_on_run = "short",
+  --     },
+  --     output_panel = {
+  --       enabled = true,
+  --       open = "botright split | resize 15",
+  --     },
+  --     projects = {},
+  --     quickfix = {
+  --       enabled = true,
+  --       open = true,
+  --     },
+  --     run = {
+  --       enabled = true,
+  --     },
+  --     running = {
+  --       concurrent = true,
+  --     },
+  --     state = {
+  --       enabled = true,
+  --     },
+  --     status = {
+  --       enabled = true,
+  --       signs = true,
+  --       virtual_text = false,
+  --     },
+  --     strategies = {
+  --       integrated = {
+  --         height = 40,
+  --         width = 120,
+  --       },
+  --     },
+  --     summary = {
+  --       animated = true,
+  --       enabled = true,
+  --       expand_errors = true,
+  --       follow = true,
+  --       mappings = {
+  --         attach = "a",
+  --         clear_marked = "M",
+  --         clear_target = "T",
+  --         debug = "d",
+  --         debug_marked = "D",
+  --         expand = { "<CR>", "<2-LeftMouse>" },
+  --         expand_all = "e",
+  --         jumpto = "i",
+  --         mark = "m",
+  --         next_failed = "J",
+  --         output = "o",
+  --         prev_failed = "K",
+  --         run = "r",
+  --         run_marked = "R",
+  --         short = "O",
+  --         stop = "u",
+  --         target = "t",
+  --       },
+  --       open = "botright vsplit | vertical resize 50",
+  --     },
+  --   },
+  -- },
 
   -- Inlay Hints
   {

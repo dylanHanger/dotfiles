@@ -31,15 +31,14 @@ return {
     dependencies = {
       "Issafalcon/neotest-dotnet",
     },
-    opts = function(_, opts)
-      -- TODO: Setup dap adapter for dotnet
-      vim.list_extend(opts.adapters, {
-        require("neotest-dotnet")({
+    opts = {
+      adapters = {
+        ["neotest-dotnet"] = {
           dap = { justMyCode = true },
           discovery_root = "project", -- "project" | "solution"
-        }),
-      })
-    end,
+        },
+      },
+    },
   },
 
   -- correctly setup lspconfig
