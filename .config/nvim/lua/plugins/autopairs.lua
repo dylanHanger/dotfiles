@@ -23,6 +23,7 @@ return {
       require("nvim-autopairs").setup(opts)
     end,
   },
+
   {
     "windwp/nvim-ts-autotag",
     config = function(_, opts)

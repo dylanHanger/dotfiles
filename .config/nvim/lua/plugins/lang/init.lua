@@ -1,8 +1,20 @@
 -- TODO: Setup for more environments
 -- Obsidian.md - epwalsh/obsidian.nvim
--- LaTeX
---
+
 return {
+  { import = "lazyvim.plugins.extras.dap.core" },
+  { import = "lazyvim.plugins.extras.test.core" },
+
+  -- Specific languages
+  { import = "lazyvim.plugins.extras.dap.nlua" },
+
+  -- TODO: Would be super nice to auto-include all these
+  { import = "plugins.lang.rust" },
+  { import = "plugins.lang.python" },
+  { import = "plugins.lang.web" },
+  { import = "plugins.lang.csharp" },
+  { import = "plugins.lang.latex" },
+
   -- Mason
   {
     "williamboman/mason.nvim",
@@ -255,13 +267,4 @@ return {
       debug_mode = false,
     },
   },
-
-  -- Specific languages
-  { import = "lazyvim.plugins.extras.dap.nlua" },
-  -- TODO: Would be super nice to auto-include all these
-  { import = "plugins.lang.rust" },
-  { import = "plugins.lang.python" },
-  { import = "plugins.lang.web" },
-  { import = "plugins.lang.csharp" },
-  { import = "plugins.lang.latex" },
 }
