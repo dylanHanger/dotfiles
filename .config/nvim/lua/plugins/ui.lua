@@ -1,8 +1,37 @@
 return {
+  -- Gitsigns
+  {
+    "lewis6991/gitsigns.nvim",
+    opts = {
+      yadm = {
+        enable = true,
+      },
+    },
+  },
+
+  -- Sign columns
+  {
+    "luukvbaal/statuscol.nvim",
+    opts = function(_, opts)
+      local builtin = require("statuscol.builtin")
+      opts.relculright = true
+      opts.bt_ignore = { "nofile" }
+      opts.segments = {
+        { sign = { name = { "Dap", "neotest" } }, click = "v:lua.ScSa" }, -- Debug symbols
+        { sign = { name = { "Diagnostic", "todo*" } }, click = "v:lua.ScSa" }, -- Diagnostic Symbols
+        { text = { builtin.lnumfunc, " " }, click = "v:lua.ScLa" }, -- Line number
+        { sign = { name = { "GitSigns" } }, click = "v:lua.ScSa" }, -- GitSigns
+        { text = { builtin.foldfunc, " " }, click = "v:lua.ScFa" }, -- Fold markers
+      }
+    end,
+  },
+
+  -- Incremental rename
   {
     "folke/noice.nvim",
     opts = {
       presets = {
+        -- NOTE: This is a reimplementation of the default inc_rename preset so that it works with renamed Command
         inc_rename = {
           cmdline = {
             format = {
@@ -22,7 +51,6 @@ return {
       },
     },
   },
-  -- Incremental rename
   {
     "smjonas/inc-rename.nvim",
     opts = {

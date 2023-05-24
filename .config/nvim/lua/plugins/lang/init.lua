@@ -16,6 +16,7 @@ return {
   { import = "plugins.lang.csharp" },
   { import = "plugins.lang.latex" },
 
+  -- Testing
   {
     "nvim-neotest/neotest",
     opts = {
@@ -44,6 +45,9 @@ return {
         },
       },
     },
+    -- FIXME: This is a corrected version of the default config
+    --        When LazyVim updates I can remove this
+    -- ~/.local/share/nvim/lazy/LazyVim/lua/lazyvim/plugins/extras/test/core.lua
     config = function(_, opts)
       local neotest_ns = vim.api.nvim_create_namespace("neotest")
       vim.diagnostic.config({
@@ -80,7 +84,7 @@ return {
   {
     "williamboman/mason.nvim",
     opts = {
-      PATH = "append",
+      PATH = "append", -- This is supposed to fix issues with ensuring the correct Python interpreter is used with Conda
     },
   },
   -- DAP
@@ -129,158 +133,6 @@ return {
       sign("DapStopped", { text = "", texthl = "DapStopped", linehl = "DapStoppedCurrentLine", numhl = "" })
     end,
   },
-
-  -- Testing
-  -- TODO: Make sure debugging tests works. Setting strategy="dap" causes tests to not run
-  -- TODO: Setup catppuccin colors here
-  -- {
-  --   "nvim-neotest/neotest",
-  --   dependencies = {
-  --     "nvim-lua/plenary.nvim",
-  --     "nvim-treesitter/nvim-treesitter",
-  --     "antoinemadec/FixCursorHold.nvim",
-  --     -- which key integration
-  --     {
-  --       "folke/which-key.nvim",
-  --       opts = {
-  --         defaults = {
-  --           ["<leader>dt"] = { name = "+tests" },
-  --         },
-  --       },
-  --     },
-  --     -- TODO: Disable mini.indentscope in the neotest buffers
-  --   },
-  --   opts = {
-  --     adapters = {},
-  --     benchmark = {
-  --       enabled = true,
-  --     },
-  --     consumers = {},
-  --     default_strategy = "integrated",
-  --     diagnostic = {
-  --       enabled = true,
-  --       severity = 1,
-  --     },
-  --     discovery = {
-  --       concurrent = 0,
-  --       enabled = true,
-  --     },
-  --     floating = {
-  --       border = "rounded",
-  --       max_height = 0.6,
-  --       max_width = 0.6,
-  --       options = {},
-  --     },
-  --     highlights = {
-  --       adapter_name = "NeotestAdapterName",
-  --       border = "NeotestBorder",
-  --       dir = "NeotestDir",
-  --       expand_marker = "NeotestExpandMarker",
-  --       failed = "NeotestFailed",
-  --       file = "NeotestFile",
-  --       focused = "NeotestFocused",
-  --       indent = "NeotestIndent",
-  --       marked = "NeotestMarked",
-  --       namespace = "NeotestNamespace",
-  --       passed = "NeotestPassed",
-  --       running = "NeotestRunning",
-  --       select_win = "NeotestWinSelect",
-  --       skipped = "NeotestSkipped",
-  --       target = "NeotestTarget",
-  --       test = "NeotestTest",
-  --       unknown = "NeotestUnknown",
-  --     },
-  --     icons = {
-  --       child_indent = "│",
-  --       child_prefix = "├",
-  --       collapsed = "─",
-  --       expanded = "╮",
-  --       failed = "",
-  --       final_child_indent = " ",
-  --       final_child_prefix = "╰",
-  --       non_collapsible = "─",
-  --       passed = "",
-  --       running = "",
-  --       running_animated = {
-  --         "⠋",
-  --         "⠙",
-  --         "⠹",
-  --         "⠸",
-  --         "⠼",
-  --         "⠴",
-  --         "⠦",
-  --         "⠧",
-  --         "⠇",
-  --         "⠏",
-  --       },
-  --       skipped = "",
-  --       unknown = "",
-  --     },
-  --     jump = {
-  --       enabled = true,
-  --     },
-  --     log_level = 3,
-  --     output = {
-  --       enabled = true,
-  --       open_on_run = "short",
-  --     },
-  --     output_panel = {
-  --       enabled = true,
-  --       open = "botright split | resize 15",
-  --     },
-  --     projects = {},
-  --     quickfix = {
-  --       enabled = true,
-  --       open = true,
-  --     },
-  --     run = {
-  --       enabled = true,
-  --     },
-  --     running = {
-  --       concurrent = true,
-  --     },
-  --     state = {
-  --       enabled = true,
-  --     },
-  --     status = {
-  --       enabled = true,
-  --       signs = true,
-  --       virtual_text = false,
-  --     },
-  --     strategies = {
-  --       integrated = {
-  --         height = 40,
-  --         width = 120,
-  --       },
-  --     },
-  --     summary = {
-  --       animated = true,
-  --       enabled = true,
-  --       expand_errors = true,
-  --       follow = true,
-  --       mappings = {
-  --         attach = "a",
-  --         clear_marked = "M",
-  --         clear_target = "T",
-  --         debug = "d",
-  --         debug_marked = "D",
-  --         expand = { "<CR>", "<2-LeftMouse>" },
-  --         expand_all = "e",
-  --         jumpto = "i",
-  --         mark = "m",
-  --         next_failed = "J",
-  --         output = "o",
-  --         prev_failed = "K",
-  --         run = "r",
-  --         run_marked = "R",
-  --         short = "O",
-  --         stop = "u",
-  --         target = "t",
-  --       },
-  --       open = "botright vsplit | vertical resize 50",
-  --     },
-  --   },
-  -- },
 
   -- Inlay Hints
   {

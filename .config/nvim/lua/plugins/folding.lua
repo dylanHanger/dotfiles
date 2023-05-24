@@ -3,20 +3,6 @@ return {
     "kevinhwang91/nvim-ufo",
     dependencies = {
       { "kevinhwang91/promise-async" },
-      {
-        "luukvbaal/statuscol.nvim",
-        opts = function(_, opts)
-          local builtin = require("statuscol.builtin")
-          -- foldfunc = "builtin",
-          -- setopt = true,
-          opts.relculright = true
-          opts.segments = {
-            { text = { "%s" }, click = "v:lua.ScSa" }, -- Symbols
-            { text = { builtin.lnumfunc, " " }, click = "v:lua.ScLa" }, -- Line number
-            { text = { builtin.foldfunc }, click = "v:lua.ScFa" }, -- Fold markers
-          }
-        end,
-      },
     },
     event = "BufRead",
     keys = {
