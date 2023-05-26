@@ -1,3 +1,4 @@
+-- TODO: Disable copilot on startup, add hotkeys for it
 return {
   {
     "L3MON4D3/LuaSnip",
@@ -21,8 +22,23 @@ return {
       local luasnip = require("luasnip")
       local cmp = require("cmp")
 
+      opts.completion = vim.tbl_extend("force", opts.completion, {
+        completeopt = "menu,menuone,noselect",
+      })
+
       opts.mapping = vim.tbl_extend("force", opts.mapping, {
-        ["<CR>"] = cmp.mapping.confirm({ select = false }),
+        ["<C-Space>"] = cmp.mapping.complete(),
+        ["<CR>"] = cmp.mapping({
+          i = function(fallback)
+            if cmp.visible() and cmp.get_active_entry() then
+              cmp.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = false })
+            else
+              fallback()
+            end
+          end,
+          s = cmp.mapping.confirm({ select = true }),
+          c = cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = true }),
+        }),
         ["<Tab>"] = cmp.mapping(function(fallback)
           if cmp.visible() then
             cmp.select_next_item()
