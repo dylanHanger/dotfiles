@@ -45,39 +45,6 @@ return {
         },
       },
     },
-    -- FIXME: This is a corrected version of the default config
-    --        When LazyVim updates I can remove this
-    -- ~/.local/share/nvim/lazy/LazyVim/lua/lazyvim/plugins/extras/test/core.lua
-    config = function(_, opts)
-      local neotest_ns = vim.api.nvim_create_namespace("neotest")
-      vim.diagnostic.config({
-        virtual_text = {
-          format = function(diagnostic)
-            -- Replace newline and tab characters with space for more compact diagnostics
-            local message = diagnostic.message:gsub("\n", " "):gsub("\t", " "):gsub("%s+", " "):gsub("^%s+", "")
-            return message
-          end,
-        },
-      }, neotest_ns)
-
-      if opts.adapters then
-        local adapters = {}
-        for name, config in pairs(opts.adapters or {}) do
-          if type(name) == "number" then
-            adapters[#adapters + 1] = config
-          elseif config ~= false then
-            local adapter = require(name)
-            if type(config) == "table" and not vim.tbl_isempty(config) then
-              adapter = adapter(config)
-            end
-            adapters[#adapters + 1] = adapter
-          end
-        end
-        opts.adapters = adapters
-      end
-
-      require("neotest").setup(opts)
-    end,
   },
 
   -- Mason
