@@ -23,22 +23,12 @@ return {
       local cmp = require("cmp")
 
       opts.completion = vim.tbl_extend("force", opts.completion, {
-        completeopt = "menu,menuone,noselect",
+        completeopt = "menu,menuone,noinsert,noselect",
       })
 
       opts.mapping = vim.tbl_extend("force", opts.mapping, {
         ["<C-Space>"] = cmp.mapping.complete(),
-        ["<CR>"] = cmp.mapping({
-          i = function(fallback)
-            if cmp.visible() and cmp.get_active_entry() then
-              cmp.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = false })
-            else
-              fallback()
-            end
-          end,
-          s = cmp.mapping.confirm({ select = true }),
-          c = cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = true }),
-        }),
+        ["<CR>"] = cmp.mapping.confirm({ select = false }),
         ["<Tab>"] = cmp.mapping(function(fallback)
           if cmp.visible() then
             cmp.select_next_item()
