@@ -55,6 +55,7 @@ return {
     opts = {
       adapters = {
         ["neotest-rust"] = {
+          dap_adapter = "codelldb",
           dap = { justMyCode = true },
         },
       },
@@ -68,7 +69,7 @@ return {
     opts = {
       -- make sure mason installs the server
       setup = {
-        rust_analyzer = function(_, opts)
+        rust_analyzer = function(_, _)
           local dap = require("dap")
           local mason_registry = require("mason-registry")
           local rust_tools = require("rust-tools")
@@ -82,7 +83,7 @@ return {
             end
           end)
 
-          local rust_tools_opts = vim.tbl_deep_extend("force", opts, {
+          local rust_tools_opts = {
             tools = {
               hover_actions = {
                 auto_focus = false,
@@ -110,7 +111,8 @@ return {
                 },
               },
             },
-          })
+          }
+
           if mason_registry.has_package("codelldb") then
             local codelldb = mason_registry.get_package("codelldb")
             local extension_path = codelldb:get_install_path() .. "/extension/"
@@ -135,56 +137,14 @@ return {
                 command = codelldb_path,
                 args = { "--liblldb", liblldb_path, "--port", "${port}" },
               },
-              enrich_config = function(cfg, on_config)
-                if cfg["cargo"] ~= nil then
-                  on_config(require("util.cargo").cargo_inspector(cfg))
-                end
-              end,
             }
             dap.adapters.codelldb = adapter
-            rust_tools_opts.dap = { adapter = adapter }
+            rust_tools_opts = vim.tbl_deep_extend("force", rust_tools_opts, {
+              dap = {
+                adapter = adapter,
+              },
+            })
           end
-
-          -- TODO: Ask rust_analyzer what these configs (name, args, etc) should be, rather than using the workspaceFolderBasename
-          -- These commands come from the `experimental/runnables` LSP extension method, and will also include test targets for binaries and libraries
-          dap.configurations.rust = {
-            {
-              name = "Debug",
-              type = "codelldb",
-              request = "launch",
-              cwd = "${workspaceFolder}",
-              cargo = {
-                -- NOTE: These are taken from VSCode's launch.json
-                args = { "build", "--bin=${workspaceFolderBasename}", "--package=${workspaceFolderBasename}" },
-                filter = { "name=${workspaceFolderBasename}", "kind=bin" },
-              },
-              stopOnEntry = false,
-              args = {},
-              env = {
-                RUST_BACKTRACE = "full",
-                CARGO_MANIFEST_DIR = "${workspaceFolder}",
-              },
-              sourceLanguages = { "rust" },
-              initCommands = function()
-                local rustc_sysroot = vim.fn.trim(vim.fn.system("rustc --print sysroot"))
-
-                local script_import = 'command script import "' .. rustc_sysroot .. '/lib/rustlib/etc/lldb_lookup.py"'
-                local commands_file = rustc_sysroot .. "/lib/rustlib/etc/lldb_commands"
-
-                local commands = {}
-                local file = io.open(commands_file, "r")
-                if file then
-                  for line in file:lines() do
-                    table.insert(commands, line)
-                  end
-                  file:close()
-                end
-                table.insert(commands, 1, script_import)
-
-                return commands
-              end,
-            },
-          }
 
           rust_tools.setup(rust_tools_opts)
           return true
