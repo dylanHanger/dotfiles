@@ -31,14 +31,14 @@ end, { desc = "Stop" })
 
 -- NEOTEST
 local neotest = require("neotest")
--- -- ]f -> next failing test
--- map("n", "]f", function()
---   neotest.jump.next({ status = "failed" })
--- end, { desc = "Next failing test" })
--- -- [f -> prev failing test
--- map("n", "[f", function()
---   neotest.jump.prev({ status = "failed" })
--- end, { desc = "Previous failing test" })
+-- ]f -> next failing test
+map("n", "]f", function()
+  neotest.jump.next({ status = "failed" })
+end, { desc = "Next failing test" })
+-- [f -> prev failing test
+map("n", "[f", function()
+  neotest.jump.prev({ status = "failed" })
+end, { desc = "Previous failing test" })
 
 --- BUFFERLINE ---
 -- <leader>bj to enter buffer picking mode

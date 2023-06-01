@@ -9,6 +9,10 @@ local function autocmd(events, cmd)
   vim.api.nvim_create_autocmd(events, cmd)
 end
 
+local function augroup(name)
+  return vim.api.nvim_create_augroup("myvim_" .. name, { clear = true })
+end
+
 -- Set wrap for LaTeX files
 autocmd("FileType", {
   pattern = { "tex" },
@@ -22,3 +26,15 @@ autocmd("FileType", {
 -- FIXME: I don't want to have to do this in an autocmd like this, why is it being overwritten?
 -- fix format options
 autocmd("FileType", { command = [[set formatoptions-=o]] })
+
+-- close some filetypes with q
+autocmd("FileType", {
+  group = augroup("close_with_q"),
+  pattern = {
+    "dap-float",
+  },
+  callback = function(event)
+    vim.bo[event.buf].buflisted = false
+    vim.keymap.set("n", "q", "<cmd>close<cr>", { buffer = event.buf, silent = true })
+  end,
+})
