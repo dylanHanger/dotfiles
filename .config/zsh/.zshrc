@@ -26,7 +26,7 @@ for f in "$ZDOTDIR/custom"/*.zsh; do
 done
 
 # Enable autosuggestions
-source "$ZDOTDIR/custom/zsh-autosuggestions/zsh-autosuggestions.zsh"
+source "$ZDOTDIR/custom/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh"
 
 # Starship prompt
 source <(starship init zsh --print-full-init)
